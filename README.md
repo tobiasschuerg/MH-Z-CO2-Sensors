@@ -14,6 +14,10 @@ https://revspace.nl/MHZ19
 
 ## Implementation
 
+```
+C ppm = 5000 * (T_high - 2 ms) / (T_high + T_low - 4ms)
+```
+
 The implementation is mostly based on  https://forum.arduino.cc/index.php?topic=525459.msg3587557#msg3587557
 
 
