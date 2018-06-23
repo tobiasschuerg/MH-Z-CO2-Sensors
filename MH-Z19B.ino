@@ -1,25 +1,32 @@
+#define CO2_IN D2
+
+#define MH_Z19_RX D7
+#define MH_Z19_TX D6
 
 #include <SoftwareSerial.h>
-SoftwareSerial co2Serial(7, 6); // define MH-Z19 RX TX
+SoftwareSerial co2Serial(MH_Z19_RX, MH_Z19_TX); // define MH-Z19 RX TX
+
 unsigned long startTime = millis();
 
 void setup() {
   Serial.begin(9600);
   co2Serial.begin(9600);
-  pinMode(9, INPUT);
+  pinMode(CO2_IN, INPUT);
 }
 
 void loop() {
-  Serial.println("------------------------------");
   Serial.print("Time from start: ");
   Serial.print((millis() - startTime) / 1000);
   Serial.println(" s");
   int ppm_uart = readCO2UART();
   int ppm_pwm = readCO2PWM();
+
+  Serial.println("\n------------------------------");
   delay(5000);
 }
 
 int readCO2UART() {
+  Serial.println("-- read CO2 uart ---");
   byte cmd[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
   byte response[9]; // for answer
 
@@ -77,7 +84,8 @@ int readCO2UART() {
   return ppm_uart;
 }
 
-byte getCheckSum(char *packet) {
+byte getCheckSum(byte *packet) {
+  Serial.println("-- get checksum ---");
   byte i;
   unsigned char checksum = 0;
   for (i = 1; i < 8; i++) {
@@ -89,9 +97,10 @@ byte getCheckSum(char *packet) {
 }
 
 int readCO2PWM() {
+  Serial.println("-- read CO2 pwm ---");
   unsigned long th, tl, ppm_pwm = 0;
   do {
-    th = pulseIn(9, HIGH, 1004000) / 1000;
+    th = pulseIn(CO2_IN, HIGH, 1004000) / 1000;
     tl = 1004 - th;
     ppm_pwm = 5000 * (th - 2) / (th + tl - 4);
   } while (th == 0);
