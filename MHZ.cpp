@@ -1,69 +1,25 @@
+/* MHZ library
 
-#include <SoftwareSerial.h>
+    By Tobias Schürg
+*/
 
-// include the library code:
-#include <LiquidCrystal.h>
+#include "MHZ.h"
 
-// initialize the library with the numbers of the interface pins
-LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
-SoftwareSerial co2Serial(7, 6); // define MH-Z19 RX TX
-unsigned long startTime = millis();
+MHZ:: MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type)
+  : co2Serial(rxpin, txpin)
+{
+  _rxpin = rxpin;
+  _txpin = txpin;
+  _pwmpin = pwmpin;
+  _type = type;
 
-void setup() {
-  Serial.begin(9600);
   co2Serial.begin(9600);
-  pinMode(9, INPUT);
-
-  // set up the LCD's number of columns and rows:
-  lcd.begin(16, 2);
-  lcd.print("CO2 heating up");
-
-  lcd.setCursor(4, 1);
-  lcd.print("seconds left");
-
-  for (int seconds = 180; seconds > 0; seconds--) {
-    lcd.setCursor(0, 1);
-    lcd.print("   "); // clear timer
-    lcd.setCursor(0, 1);
-    lcd.print(seconds);
-    delay(1000);
-  }
-
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("CO2 Air Quality");
 }
 
-void loop() {
-  Serial.println("------------------------------");
-  Serial.print("Time from start: ");
-  Serial.print((millis() - startTime) / 1000);
-  Serial.println(" s");
-  int ppm_uart = readCO2UART();
-  int ppm_pwm = readCO2PWM();
 
-  // TODO: just clear second line?
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("CO2 Air Quality");
-
-  lcd.setCursor(0, 1);
-  lcd.print("PPM: ");
-
-  lcd.setCursor(5, 1);
-  lcd.print(ppm_pwm);
-
-  lcd.setCursor(10, 1);
-  lcd.print("|");
-
-  lcd.setCursor(12, 1);
-  lcd.print(ppm_uart);
-
-  delay(5000);
-}
-
-int readCO2UART() {
+int MHZ::readCO2UART() {
+  Serial.println("-- read CO2 uart ---");
   byte cmd[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
   byte response[9]; // for answer
 
@@ -121,7 +77,8 @@ int readCO2UART() {
   return ppm_uart;
 }
 
-byte getCheckSum(char *packet) {
+byte MHZ::getCheckSum(byte *packet) {
+  Serial.println("-- get checksum ---");
   byte i;
   unsigned char checksum = 0;
   for (i = 1; i < 8; i++) {
@@ -132,10 +89,12 @@ byte getCheckSum(char *packet) {
   return checksum;
 }
 
-int readCO2PWM() {
+int MHZ::readCO2PWM() {
+  Serial.println("-- read CO2 pwm ---");
   unsigned long th, tl, ppm_pwm = 0;
   do {
-    th = pulseIn(9, HIGH, 1004000) / 1000;
+    Serial.print(".");
+    th = pulseIn(_pwmpin, HIGH, 1004000) / 1000;
     tl = 1004 - th;
     ppm_pwm = 5000 * (th - 2) / (th + tl - 4);
   } while (th == 0);
