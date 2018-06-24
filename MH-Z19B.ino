@@ -26,16 +26,23 @@ void loop() {
   // Serial.print("\n----- Time from start: ");
   // Serial.print(millis() / 1000);
   // Serial.println(" s");
+
   int ppm_uart = co2.readCO2UART();
+  if (ppm_uart > 0) {
+    Serial.print("PPMuart: ");
+    Serial.print(ppm_uart);
+  }
+
   // int ppm_pwm = co2.readCO2PWM();
-  int temperature = co2.getLastTemperature();
-  Serial.print("PPMuart: ");
-  Serial.print(ppm_uart);
   // Serial.print(", PPMpwm: ");
   // Serial.print(ppm_pwm);
-  Serial.print(", Temperature: ");
-  Serial.println(temperature);
+
+  int temperature = co2.getLastTemperature();
+  if (temperature > 0) {
+    Serial.print(", Temperature: ");
+    Serial.println(temperature);
+  }
 
   // Serial.println("\n------------------------------");
-  // delay(3000);
+  delay(1000);
 }

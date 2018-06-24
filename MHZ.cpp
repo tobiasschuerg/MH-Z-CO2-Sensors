@@ -84,28 +84,30 @@ int MHZ::readCO2UART() {
     Serial.println(response[8], HEX);
     Serial.print("MHZ: Should be: ");
     Serial.println(check, HEX);
+    temperature = -1; // TODO maybe change to another magic value
+    return -1;
   }
 
   int ppm_uart = 256 * (int)response[2] + response[3];
 
   temperature = response[4] - 44; // - 40;
 
+  byte status = response[5];
   if (debug) {
     Serial.print(" # PPM UART: ");
     Serial.println(ppm_uart);
     Serial.print(" # Temperature? ");
     Serial.println(temperature);
+  }
 
-    // status
-    // not sure about this...
-    byte status = response[5];
-    Serial.print("  Status? ");
-    Serial.print(status);
-    if (status == 0x40) {
-      Serial.println(" - Status OK");
-    } else {
-      Serial.println(" ! Status not OK !");
-    }
+  // Is always 0 for version b
+  // Version a: status != 0x40
+  if (debug || status != 0) {
+    Serial.print(" ! Status not OK ! ");
+    Serial.println(status, HEX);
+  } else if (debug) {
+    Serial.print(" Status  OK: ");
+    Serial.println(status, HEX);
   }
 
   return ppm_uart;
