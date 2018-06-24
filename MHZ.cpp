@@ -18,67 +18,105 @@ MHZ:: MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type)
 }
 
 
+void MHZ::setDebug(boolean enable) {
+  debug = enable;
+  if (debug) {
+    Serial.println("MHZ: debug mode ENABLED");
+  } else {
+    Serial.println("MHZ: debug mode DISABLED");
+  }
+}
+
+
+
 int MHZ::readCO2UART() {
-  Serial.println("-- read CO2 uart ---");
+  if (debug) Serial.println("-- read CO2 uart ---");
   byte cmd[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
   byte response[9]; // for answer
 
-  Serial.println("Sending CO2 request...");
+  if (debug) Serial.print("  >> Sending CO2 request");
   co2Serial.write(cmd, 9); //request PPM CO2
 
   // clear the buffer
   memset(response, 0, 9);
-  int i = 0;
+
   while (co2Serial.available() == 0) {
-    //    Serial.print("Waiting for response ");
-    //    Serial.print(i);
-    //    Serial.println(" s");
-    delay(1000);
-    i++;
+    if (debug) Serial.print(".");
+    delay(5); // wait a short moment to avoid false reading
   }
+  if (debug) Serial.println();
+
+  // The serial stream can get out of sync. The response starts with 0xff, try to resync.
+  // TODO: I think this is wrong any only happens during initialization
+  boolean skip = false;
+  while (co2Serial.available() > 0 && (unsigned char)co2Serial.peek() != 0xFF)
+  {
+    if (!skip) {
+      Serial.print("MHZ: - skipping unexpected readings:");
+      skip = true;
+    }
+    Serial.print(" ");
+    Serial.print(co2Serial.peek(), HEX);
+    co2Serial.read();
+  }
+  if (skip) Serial.println();
+
+
   if (co2Serial.available() > 0) {
     co2Serial.readBytes(response, 9);
   }
-  // print out the response in hexa
-  for (int i = 0; i < 9; i++) {
-    Serial.print(String(response[i], HEX));
-    Serial.print("   ");
+
+  if (debug) {
+    // print out the response in hexa
+    Serial.print("  << ");
+    for (int i = 0; i < 9; i++) {
+      Serial.print(response[i], HEX);
+      Serial.print("  ");
+    }
+    Serial.println("");
   }
-  Serial.println("");
 
   // checksum
   byte check = getCheckSum(response);
   if (response[8] != check) {
-    Serial.println("Checksum not OK!");
-    Serial.print("Received: ");
-    Serial.println(response[8]);
-    Serial.print("Should be: ");
-    Serial.println(check);
+    Serial.println("MHZ: Checksum not OK!");
+    Serial.print("MHZ: Received: ");
+    Serial.println(response[8], HEX);
+    Serial.print("MHZ: Should be: ");
+    Serial.println(check, HEX);
   }
 
-  // ppm
   int ppm_uart = 256 * (int)response[2] + response[3];
-  Serial.print("PPM UART: ");
-  Serial.println(ppm_uart);
 
-  // temp
-  byte temp = response[4] - 40;
-  Serial.print("Temperature? ");
-  Serial.println(temp);
+  temperature = response[4] - 44; // - 40;
 
-  // status
-  byte status = response[5];
-  Serial.print("Status? ");
-  Serial.println(status);
-  if (status == 0x40) {
-    Serial.println("Status OK");
+  if (debug) {
+    Serial.print(" # PPM UART: ");
+    Serial.println(ppm_uart);
+    Serial.print(" # Temperature? ");
+    Serial.println(temperature);
+
+    // status
+    // not sure about this...
+    byte status = response[5];
+    Serial.print("  Status? ");
+    Serial.print(status);
+    if (status == 0x40) {
+      Serial.println(" - Status OK");
+    } else {
+      Serial.println(" ! Status not OK !");
+    }
   }
 
   return ppm_uart;
 }
 
+uint8_t MHZ::getLastTemperature() {
+  return temperature;
+}
+
 byte MHZ::getCheckSum(byte *packet) {
-  Serial.println("-- get checksum ---");
+  if (debug) Serial.println("  getCheckSum()");
   byte i;
   unsigned char checksum = 0;
   for (i = 1; i < 8; i++) {
@@ -90,15 +128,17 @@ byte MHZ::getCheckSum(byte *packet) {
 }
 
 int MHZ::readCO2PWM() {
-  Serial.println("-- read CO2 pwm ---");
+  if (debug) Serial.print("-- reading CO2 from pwm ");
   unsigned long th, tl, ppm_pwm = 0;
   do {
-    Serial.print(".");
+    if (debug) Serial.print(".");
     th = pulseIn(_pwmpin, HIGH, 1004000) / 1000;
     tl = 1004 - th;
     ppm_pwm = 5000 * (th - 2) / (th + tl - 4);
   } while (th == 0);
-  Serial.print("PPM PWM: ");
-  Serial.println(ppm_pwm);
+  if (debug) {
+    Serial.print("\n # PPM PWM: ");
+    Serial.println(ppm_pwm);
+  }
   return ppm_pwm;
 }

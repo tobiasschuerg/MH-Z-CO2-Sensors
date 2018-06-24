@@ -24,14 +24,18 @@ class MHZ {
   public:
     MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type);
 
+    void setDebug(boolean enable);
+
     int readCO2UART();
     int readCO2PWM();
+    uint8_t getLastTemperature();
 
   private:
-    uint8_t _rxpin, _txpin, _pwmpin, _type;
+    uint8_t _rxpin, _txpin, _pwmpin, _type, temperature;
+    boolean debug = false;
+
     SoftwareSerial co2Serial;
     byte getCheckSum(byte *packet);
-
 };
 
 
