@@ -28,6 +28,7 @@ void MHZ::setDebug(boolean enable) {
 }
 
 
+int retryCount = 0;
 
 int MHZ::readCO2UART() {
   if (debug) Serial.println("-- read CO2 uart ---");
@@ -40,14 +41,20 @@ int MHZ::readCO2UART() {
   // clear the buffer
   memset(response, 0, 9);
 
+  int waited = 0;
   while (co2Serial.available() == 0) {
     if (debug) Serial.print(".");
-    delay(5); // wait a short moment to avoid false reading
+    delay(100); // wait a short moment to avoid false reading
+    if(waited++ > 10) {
+      if (debug) Serial.println("No response after 10 seconds");
+      co2Serial.flush();
+      return STATUS_NO_RESPONSE;
+    } 
   }
   if (debug) Serial.println();
 
   // The serial stream can get out of sync. The response starts with 0xff, try to resync.
-  // TODO: I think this is wrong any only happens during initialization
+  // TODO: I think this might be wrong any only happens during initialization?
   boolean skip = false;
   while (co2Serial.available() > 0 && (unsigned char)co2Serial.peek() != 0xFF)
   {
@@ -63,7 +70,14 @@ int MHZ::readCO2UART() {
 
 
   if (co2Serial.available() > 0) {
-    co2Serial.readBytes(response, 9);
+    int count = co2Serial.readBytes(response, 9);
+    if (count <9) {
+      co2Serial.flush();
+      return STATUS_INCOMPLETE;
+    }
+  } else {
+    co2Serial.flush();
+    return STATUS_INCOMPLETE;
   }
 
   if (debug) {
@@ -84,8 +98,9 @@ int MHZ::readCO2UART() {
     Serial.println(response[8], HEX);
     Serial.print("MHZ: Should be: ");
     Serial.println(check, HEX);
-    temperature = -1; // TODO maybe change to another magic value
-    return -1;
+    temperature = STATUS_CHECKSUM_MISMATCH;
+    co2Serial.flush();
+    return STATUS_CHECKSUM_MISMATCH;
   }
 
   int ppm_uart = 256 * (int)response[2] + response[3];
@@ -100,16 +115,17 @@ int MHZ::readCO2UART() {
     Serial.println(temperature);
   }
 
-  // Is always 0 for version b
-  // Version a: status != 0x40
+  // Is always 0 for version 14a  and 19b
+  // Version a?: status != 0x40
   if (debug || status != 0) {
-    Serial.print(" ! Status not OK ! ");
+    Serial.print(" ! Status maybe not OK ! ");
     Serial.println(status, HEX);
   } else if (debug) {
     Serial.print(" Status  OK: ");
     Serial.println(status, HEX);
   }
 
+  // co2Serial.flush();
   return ppm_uart;
 }
 

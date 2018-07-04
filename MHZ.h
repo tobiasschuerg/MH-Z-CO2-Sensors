@@ -17,6 +17,11 @@
 #define MHZ19B 19
 
 
+#define STATUS_NO_RESPONSE -2
+#define STATUS_CHECKSUM_MISMATCH -3
+#define STATUS_INCOMPLETE -4
+
+
 #include <SoftwareSerial.h>
 
 
