@@ -1,0 +1,41 @@
+#######################################
+# Syntax Coloring Map For MHZ
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+MHZ	KEYWORD1
+
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+setDebug	KEYWORD2
+isPreHeating	KEYWORD2
+isReady	KEYWORD2
+readCO2UART	KEYWORD2
+readCO2PWM	KEYWORD2
+getLastTemperature	KEYWORD2
+
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+co2 KEYWORD2
+
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+MHZ14A  LITERAL1
+MHZ19B  LITERAL1
+
+STATUS_NO_RESPONSE  LITERAL1
+STATUS_CHECKSUM_MISMATCH  LITERAL1
+STATUS_INCOMPLETE LITERAL1
+STATUS_NOT_READY  LITERAL1

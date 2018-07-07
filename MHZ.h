@@ -11,15 +11,17 @@
 #include "WProgram.h"
 #endif
 
-// Define types of sensors.
-#define MHZ14A 14
-#define MHZ19B 19
-
-#define STATUS_NO_RESPONSE -2
-#define STATUS_CHECKSUM_MISMATCH -3
-#define STATUS_INCOMPLETE -4
-
 #include <SoftwareSerial.h>
+
+// types of sensors.
+extern const int MHZ14A;
+extern const int MHZ19B;
+
+// status codes
+extern const int STATUS_NO_RESPONSE;
+extern const int STATUS_CHECKSUM_MISMATCH;
+extern const int STATUS_INCOMPLETE;
+extern const int STATUS_NOT_READY;
 
 class MHZ {
  public:
