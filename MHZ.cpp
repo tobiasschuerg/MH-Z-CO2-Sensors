@@ -5,10 +5,8 @@
 
 #include "MHZ.h"
 
-
-MHZ:: MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type)
-  : co2Serial(rxpin, txpin)
-{
+MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type)
+    : co2Serial(rxpin, txpin) {
   _rxpin = rxpin;
   _txpin = txpin;
   _pwmpin = pwmpin;
@@ -16,7 +14,6 @@ MHZ:: MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type)
 
   co2Serial.begin(9600);
 }
-
 
 void MHZ::setDebug(boolean enable) {
   debug = enable;
@@ -27,16 +24,15 @@ void MHZ::setDebug(boolean enable) {
   }
 }
 
-
 int retryCount = 0;
 
 int MHZ::readCO2UART() {
   if (debug) Serial.println("-- read CO2 uart ---");
   byte cmd[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
-  byte response[9]; // for answer
+  byte response[9];  // for answer
 
   if (debug) Serial.print("  >> Sending CO2 request");
-  co2Serial.write(cmd, 9); //request PPM CO2
+  co2Serial.write(cmd, 9);  // request PPM CO2
 
   // clear the buffer
   memset(response, 0, 9);
@@ -44,20 +40,20 @@ int MHZ::readCO2UART() {
   int waited = 0;
   while (co2Serial.available() == 0) {
     if (debug) Serial.print(".");
-    delay(100); // wait a short moment to avoid false reading
-    if(waited++ > 10) {
+    delay(100);  // wait a short moment to avoid false reading
+    if (waited++ > 10) {
       if (debug) Serial.println("No response after 10 seconds");
       co2Serial.flush();
       return STATUS_NO_RESPONSE;
-    } 
+    }
   }
   if (debug) Serial.println();
 
-  // The serial stream can get out of sync. The response starts with 0xff, try to resync.
+  // The serial stream can get out of sync. The response starts with 0xff, try
+  // to resync.
   // TODO: I think this might be wrong any only happens during initialization?
   boolean skip = false;
-  while (co2Serial.available() > 0 && (unsigned char)co2Serial.peek() != 0xFF)
-  {
+  while (co2Serial.available() > 0 && (unsigned char)co2Serial.peek() != 0xFF) {
     if (!skip) {
       Serial.print("MHZ: - skipping unexpected readings:");
       skip = true;
@@ -68,10 +64,9 @@ int MHZ::readCO2UART() {
   }
   if (skip) Serial.println();
 
-
   if (co2Serial.available() > 0) {
     int count = co2Serial.readBytes(response, 9);
-    if (count <9) {
+    if (count < 9) {
       co2Serial.flush();
       return STATUS_INCOMPLETE;
     }
@@ -105,7 +100,7 @@ int MHZ::readCO2UART() {
 
   int ppm_uart = 256 * (int)response[2] + response[3];
 
-  temperature = response[4] - 44; // - 40;
+  temperature = response[4] - 44;  // - 40;
 
   byte status = response[5];
   if (debug) {
@@ -116,7 +111,7 @@ int MHZ::readCO2UART() {
   }
 
   // Is always 0 for version 14a  and 19b
-  // Version a?: status != 0x40
+  // Version 19a?: status != 0x40
   if (debug || status != 0) {
     Serial.print(" ! Status maybe not OK ! ");
     Serial.println(status, HEX);
@@ -125,13 +120,11 @@ int MHZ::readCO2UART() {
     Serial.println(status, HEX);
   }
 
-  // co2Serial.flush();
+  co2Serial.flush();
   return ppm_uart;
 }
 
-uint8_t MHZ::getLastTemperature() {
-  return temperature;
-}
+uint8_t MHZ::getLastTemperature() { return temperature; }
 
 byte MHZ::getCheckSum(byte *packet) {
   if (debug) Serial.println("  getCheckSum()");

@@ -11,38 +11,35 @@
 #include "WProgram.h"
 #endif
 
-
 // Define types of sensors.
 #define MHZ14A 14
 #define MHZ19B 19
-
 
 #define STATUS_NO_RESPONSE -2
 #define STATUS_CHECKSUM_MISMATCH -3
 #define STATUS_INCOMPLETE -4
 
-
 #include <SoftwareSerial.h>
 
-
 class MHZ {
-  public:
-    MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type);
+ public:
+  MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type);
 
-    void setDebug(boolean enable);
+  void setDebug(boolean enable);
 
-    int readCO2UART();
-    int readCO2PWM();
-    uint8_t getLastTemperature();
+  boolean isPreHeating();
+  boolean isReady();
 
-  private:
-    uint8_t _rxpin, _txpin, _pwmpin, _type, temperature;
-    boolean debug = false;
+  int readCO2UART();
+  int readCO2PWM();
+  uint8_t getLastTemperature();
 
-    SoftwareSerial co2Serial;
-    byte getCheckSum(byte *packet);
+ private:
+  uint8_t _rxpin, _txpin, _pwmpin, _type, temperature;
+  boolean debug = false;
+
+  SoftwareSerial co2Serial;
+  byte getCheckSum(byte *packet);
 };
 
-
 #endif
-
