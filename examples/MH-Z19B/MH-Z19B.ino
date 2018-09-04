@@ -4,10 +4,12 @@
 #include <SoftwareSerial.h>
 #include "MHZ.h"
 
-#define CO2_IN D2
+// pin for uart reading
+#define CO2_IN 10
 
-#define MH_Z19_RX D7
-#define MH_Z19_TX D6
+// pin for pwm reading
+#define MH_Z19_RX D4  // D7
+#define MH_Z19_TX D0  // D6
 
 MHZ co2(MH_Z19_RX, MH_Z19_TX, CO2_IN, MHZ19B);
 
@@ -17,13 +19,23 @@ void setup() {
   delay(100);
   Serial.println("MHZ 19B");
 
-  co2.setDebug(true);
+  // enable debug to get addition information
+  // co2.setDebug(true);
+
+  if (co2.isPreHeating()) {
+    Serial.print("Preheating");
+    while (co2.isPreHeating()) {
+      Serial.print(".");
+      delay(5000);
+    }
+    Serial.println();
+  }
 }
 
 void loop() {
-  // Serial.print("\n----- Time from start: ");
-  // Serial.print(millis() / 1000);
-  // Serial.println(" s");
+  Serial.print("\n----- Time from start: ");
+  Serial.print(millis() / 1000);
+  Serial.println(" s");
 
   int ppm_uart = co2.readCO2UART();
   if (ppm_uart > 0) {
@@ -31,9 +43,9 @@ void loop() {
     Serial.print(ppm_uart);
   }
 
-  // int ppm_pwm = co2.readCO2PWM();
-  // Serial.print(", PPMpwm: ");
-  // Serial.print(ppm_pwm);
+  int ppm_pwm = co2.readCO2PWM();
+  Serial.print(", PPMpwm: ");
+  Serial.print(ppm_pwm);
 
   int temperature = co2.getLastTemperature();
   if (temperature > 0) {
@@ -41,6 +53,6 @@ void loop() {
     Serial.println(temperature);
   }
 
-  // Serial.println("\n------------------------------");
-  delay(1000);
+  Serial.println("\n------------------------------");
+  delay(5000);
 }
