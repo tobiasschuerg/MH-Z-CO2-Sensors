@@ -8,6 +8,9 @@
 const int MHZ14A = 14;
 const int MHZ19B = 19;
 
+const int MHZ14A_RESPONSE_TIME = 60;
+const int MHZ19B_RESPONSE_TIME = 120;
+
 const int STATUS_NO_RESPONSE = -2;
 const int STATUS_CHECKSUM_MISMATCH = -3;
 const int STATUS_INCOMPLETE = -4;
@@ -51,9 +54,9 @@ boolean MHZ::isPreHeating() {
 boolean MHZ::isReady() {
   if (isPreHeating()) return false;
   if (_type == MHZ14A)
-    return lastRequest < millis() - 90 * 1000;
+    return lastRequest < millis() - MHZ14A_RESPONSE_TIME;
   else if (_type == MHZ19B)
-    return lastRequest < millis() - 60 * 1000;
+    return lastRequest < millis() - MHZ19B_RESPONSE_TIME;
   else {
     Serial.print("MHZ::isReady() => UNKNOWN SENSOR \"");
     Serial.print(_type);
