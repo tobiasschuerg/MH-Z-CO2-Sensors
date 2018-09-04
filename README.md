@@ -1,4 +1,4 @@
-# MH-Z19B CO2 Module
+# MH-Z14A, MH-Z19B CO2 ... Module
 
 Arduino implementation for MH-Z CO2 sensors such as **MH-Z14A**, **MH-Z18B** (as I didn't find all info in one place).
 
