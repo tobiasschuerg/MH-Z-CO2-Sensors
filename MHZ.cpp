@@ -34,9 +34,9 @@ MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type)
 void MHZ::setDebug(boolean enable) {
   debug = enable;
   if (debug) {
-    Serial.println("MHZ: debug mode ENABLED");
+    Serial.println(F("MHZ: debug mode ENABLED"));
   } else {
-    Serial.println("MHZ: debug mode DISABLED");
+    Serial.println(F("MHZ: debug mode DISABLED"));
   }
 }
 
@@ -46,7 +46,7 @@ boolean MHZ::isPreHeating() {
   } else if (_type == MHZ19B) {
     return millis() < (3 * 60 * 1000);
   } else {
-    Serial.println("MHZ::isPreHeating() => UNKNOWN SENSOR");
+    Serial.println(F("MHZ::isPreHeating() => UNKNOWN SENSOR"));
     return false;
   }
 }
@@ -58,20 +58,20 @@ boolean MHZ::isReady() {
   else if (_type == MHZ19B)
     return lastRequest < millis() - MHZ19B_RESPONSE_TIME;
   else {
-    Serial.print("MHZ::isReady() => UNKNOWN SENSOR \"");
+    Serial.print(F("MHZ::isReady() => UNKNOWN SENSOR \""));
     Serial.print(_type);
-    Serial.println("\"");
+    Serial.println(F("\""));
     return true;
   }
 }
 
 int MHZ::readCO2UART() {
   if (!isReady()) return STATUS_NOT_READY;
-  if (debug) Serial.println("-- read CO2 uart ---");
+  if (debug) Serial.println(F("-- read CO2 uart ---"));
   byte cmd[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
   byte response[9];  // for answer
 
-  if (debug) Serial.print("  >> Sending CO2 request");
+  if (debug) Serial.print(F("  >> Sending CO2 request"));
   co2Serial.write(cmd, 9);  // request PPM CO2
   lastRequest = millis();
 
@@ -83,7 +83,7 @@ int MHZ::readCO2UART() {
     if (debug) Serial.print(".");
     delay(100);  // wait a short moment to avoid false reading
     if (waited++ > 10) {
-      if (debug) Serial.println("No response after 10 seconds");
+      if (debug) Serial.println(F("No response after 10 seconds"));
       co2Serial.flush();
       return STATUS_NO_RESPONSE;
     }
@@ -96,7 +96,7 @@ int MHZ::readCO2UART() {
   boolean skip = false;
   while (co2Serial.available() > 0 && (unsigned char)co2Serial.peek() != 0xFF) {
     if (!skip) {
-      Serial.print("MHZ: - skipping unexpected readings:");
+      Serial.print(F("MHZ: - skipping unexpected readings:"));
       skip = true;
     }
     Serial.print(" ");
@@ -118,21 +118,21 @@ int MHZ::readCO2UART() {
 
   if (debug) {
     // print out the response in hexa
-    Serial.print("  << ");
+    Serial.print(F("  << "));
     for (int i = 0; i < 9; i++) {
       Serial.print(response[i], HEX);
-      Serial.print("  ");
+      Serial.print(F("  "));
     }
-    Serial.println("");
+    Serial.println(F(""));
   }
 
   // checksum
   byte check = getCheckSum(response);
   if (response[8] != check) {
-    Serial.println("MHZ: Checksum not OK!");
-    Serial.print("MHZ: Received: ");
+    Serial.println(F("MHZ: Checksum not OK!"));
+    Serial.print(F("MHZ: Received: "));
     Serial.println(response[8], HEX);
-    Serial.print("MHZ: Should be: ");
+    Serial.print(F("MHZ: Should be: "));
     Serial.println(check, HEX);
     temperature = STATUS_CHECKSUM_MISMATCH;
     co2Serial.flush();
@@ -145,19 +145,19 @@ int MHZ::readCO2UART() {
 
   byte status = response[5];
   if (debug) {
-    Serial.print(" # PPM UART: ");
+    Serial.print(F(" # PPM UART: "));
     Serial.println(ppm_uart);
-    Serial.print(" # Temperature? ");
+    Serial.print(F(" # Temperature? "));
     Serial.println(temperature);
   }
 
   // Is always 0 for version 14a  and 19b
   // Version 19a?: status != 0x40
   if (debug || status != 0) {
-    Serial.print(" ! Status maybe not OK ! ");
+    Serial.print(F(" ! Status maybe not OK ! "));
     Serial.println(status, HEX);
   } else if (debug) {
-    Serial.print(" Status  OK: ");
+    Serial.print(F(" Status  OK: "));
     Serial.println(status, HEX);
   }
 
@@ -171,7 +171,7 @@ uint8_t MHZ::getLastTemperature() {
 }
 
 byte MHZ::getCheckSum(byte* packet) {
-  if (debug) Serial.println("  getCheckSum()");
+  if (debug) Serial.println(F("  getCheckSum()"));
   byte i;
   unsigned char checksum = 0;
   for (i = 1; i < 8; i++) {
@@ -184,7 +184,7 @@ byte MHZ::getCheckSum(byte* packet) {
 
 int MHZ::readCO2PWM() {
   // if (!isReady()) return STATUS_NOT_READY; not needed?
-  if (debug) Serial.print("-- reading CO2 from pwm ");
+  if (debug) Serial.print(F("-- reading CO2 from pwm "));
   unsigned long th, tl, ppm_pwm = 0;
   do {
     if (debug) Serial.print(".");
@@ -193,7 +193,7 @@ int MHZ::readCO2PWM() {
     ppm_pwm = 5000 * (th - 2) / (th + tl - 4);
   } while (th == 0);
   if (debug) {
-    Serial.print("\n # PPM PWM: ");
+    Serial.print(F("\n # PPM PWM: "));
     Serial.println(ppm_pwm);
   }
   return ppm_pwm;
