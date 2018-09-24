@@ -153,7 +153,7 @@ int MHZ::readCO2UART() {
 
   // Is always 0 for version 14a  and 19b
   // Version 19a?: status != 0x40
-  if (debug || status != 0) {
+  if (debug && status != 0) {
     Serial.print(F(" ! Status maybe not OK ! "));
     Serial.println(status, HEX);
   } else if (debug) {
@@ -166,7 +166,7 @@ int MHZ::readCO2UART() {
 }
 
 uint8_t MHZ::getLastTemperature() {
-  if (!isReady()) return STATUS_NOT_READY;
+  if (isPreHeating()) return STATUS_NOT_READY;
   return temperature;
 }
 
