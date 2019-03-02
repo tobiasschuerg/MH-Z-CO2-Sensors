@@ -18,14 +18,19 @@ const int STATUS_NOT_READY = -5;
 
 unsigned long lastRequest = 0;
 
-MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type)
-    : co2Serial(rxpin, txpin) {
-  _rxpin = rxpin;
-  _txpin = txpin;
+MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type) {
+  SoftwareSerial * ss = new SoftwareSerial(rxpin, txpin);
   _pwmpin = pwmpin;
   _type = type;
 
-  co2Serial.begin(9600);
+  ss->begin(9600);
+  _serial = ss;
+}
+
+MHZ::MHZ(Stream * serial, uint8_t pwmpin, uint8_t type) {
+    _serial = serial;
+    _pwmpin = pwmpin;
+    _type = type;
 }
 
 /**
@@ -72,19 +77,19 @@ int MHZ::readCO2UART() {
   byte response[9];  // for answer
 
   if (debug) Serial.print(F("  >> Sending CO2 request"));
-  co2Serial.write(cmd, 9);  // request PPM CO2
+  _serial->write(cmd, 9);  // request PPM CO2
   lastRequest = millis();
 
   // clear the buffer
   memset(response, 0, 9);
 
   int waited = 0;
-  while (co2Serial.available() == 0) {
+  while (_serial->available() == 0) {
     if (debug) Serial.print(".");
     delay(100);  // wait a short moment to avoid false reading
     if (waited++ > 10) {
       if (debug) Serial.println(F("No response after 10 seconds"));
-      co2Serial.flush();
+      _serial->flush();
       return STATUS_NO_RESPONSE;
     }
   }
@@ -94,25 +99,25 @@ int MHZ::readCO2UART() {
   // to resync.
   // TODO: I think this might be wrong any only happens during initialization?
   boolean skip = false;
-  while (co2Serial.available() > 0 && (unsigned char)co2Serial.peek() != 0xFF) {
+  while (_serial->available() > 0 && (unsigned char)_serial->peek() != 0xFF) {
     if (!skip) {
       Serial.print(F("MHZ: - skipping unexpected readings:"));
       skip = true;
     }
     Serial.print(" ");
-    Serial.print(co2Serial.peek(), HEX);
-    co2Serial.read();
+    Serial.print(_serial->peek(), HEX);
+    _serial->read();
   }
   if (skip) Serial.println();
 
-  if (co2Serial.available() > 0) {
-    int count = co2Serial.readBytes(response, 9);
+  if (_serial->available() > 0) {
+    int count = _serial->readBytes(response, 9);
     if (count < 9) {
-      co2Serial.flush();
+      _serial->flush();
       return STATUS_INCOMPLETE;
     }
   } else {
-    co2Serial.flush();
+    _serial->flush();
     return STATUS_INCOMPLETE;
   }
 
@@ -135,7 +140,7 @@ int MHZ::readCO2UART() {
     Serial.print(F("MHZ: Should be: "));
     Serial.println(check, HEX);
     temperature = STATUS_CHECKSUM_MISMATCH;
-    co2Serial.flush();
+    _serial->flush();
     return STATUS_CHECKSUM_MISMATCH;
   }
 
@@ -161,7 +166,7 @@ int MHZ::readCO2UART() {
     Serial.println(status, HEX);
   }
 
-  co2Serial.flush();
+  _serial->flush();
   return ppm_uart;
 }
 
