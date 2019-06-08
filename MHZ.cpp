@@ -8,8 +8,8 @@
 const int MHZ14A = 14;
 const int MHZ19B = 19;
 
-const int MHZ14A_RESPONSE_TIME = 60;
-const int MHZ19B_RESPONSE_TIME = 120;
+const int MHZ14A_RESPONSE_TIME = 60 * 1000;
+const int MHZ19B_RESPONSE_TIME = 120 * 1000;
 
 const int STATUS_NO_RESPONSE = -2;
 const int STATUS_CHECKSUM_MISMATCH = -3;
