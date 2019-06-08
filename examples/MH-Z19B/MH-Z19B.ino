@@ -1,13 +1,11 @@
-
-
 #include <ESP8266WiFi.h>
 #include <SoftwareSerial.h>
-#include "MHZ.h"
-
-// pin for uart reading
-#define CO2_IN 10
+#include <MHZ.h>
 
 // pin for pwm reading
+#define CO2_IN 10
+
+// pin for uart reading
 #define MH_Z19_RX D4  // D7
 #define MH_Z19_TX D0  // D6
 
@@ -38,9 +36,12 @@ void loop() {
   Serial.println(" s");
 
   int ppm_uart = co2.readCO2UART();
+  Serial.print("PPMuart: ");
+
   if (ppm_uart > 0) {
-    Serial.print("PPMuart: ");
     Serial.print(ppm_uart);
+  } else {
+    Serial.print("n/a");
   }
 
   int ppm_pwm = co2.readCO2PWM();
@@ -48,9 +49,12 @@ void loop() {
   Serial.print(ppm_pwm);
 
   int temperature = co2.getLastTemperature();
+  Serial.print(", Temperature: ");
+
   if (temperature > 0) {
-    Serial.print(", Temperature: ");
     Serial.println(temperature);
+  } else {
+    Serial.println("n/a");
   }
 
   Serial.println("\n------------------------------");

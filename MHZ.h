@@ -26,7 +26,10 @@ extern const int STATUS_NOT_READY;
 class MHZ {
  public:
   MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type);
+  MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type);
+  MHZ(uint8_t pwmpin, uint8_t type);
   MHZ(Stream * serial, uint8_t pwmpin, uint8_t type);
+  MHZ(Stream * serial, uint8_t type);
 
   void setDebug(boolean enable);
 
@@ -35,7 +38,7 @@ class MHZ {
 
   int readCO2UART();
   int readCO2PWM();
-  uint8_t getLastTemperature();
+  int getLastTemperature();
 
  private:
   uint8_t _pwmpin, _type, temperature;
