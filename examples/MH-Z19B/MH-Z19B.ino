@@ -4,10 +4,10 @@
 #include <SoftwareSerial.h>
 #include "MHZ.h"
 
-// pin for uart reading
+// pin for pwm reading
 #define CO2_IN 10
 
-// pin for pwm reading
+// pin for uart reading
 #define MH_Z19_RX D4  // D7
 #define MH_Z19_TX D0  // D6
 
