@@ -1,8 +1,6 @@
-
-
 #include <ESP8266WiFi.h>
 #include <SoftwareSerial.h>
-#include "MHZ.h"
+#include <MHZ.h>
 
 // pin for pwm reading
 #define CO2_IN 10
