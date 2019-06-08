@@ -8,6 +8,9 @@
 const int MHZ14A = 14;
 const int MHZ19B = 19;
 
+const int MHZ14A_PREHEATING_TIME = 3 * 60 * 1000;
+const int MHZ19B_PREHEATING_TIME = 3 * 60 * 1000;
+
 const int MHZ14A_RESPONSE_TIME = 60 * 1000;
 const int MHZ19B_RESPONSE_TIME = 120 * 1000;
 
@@ -15,8 +18,13 @@ const int STATUS_NO_RESPONSE = -2;
 const int STATUS_CHECKSUM_MISMATCH = -3;
 const int STATUS_INCOMPLETE = -4;
 const int STATUS_NOT_READY = -5;
+const int STATUS_PWM_NOT_CONFIGURED = -6;
+const int STATUS_SERIAL_NOT_CONFIGURED = -7;
 
 unsigned long lastRequest = 0;
+
+bool SerialConfigured = true;
+bool PwmConfigured = true;
 
 MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type) {
   SoftwareSerial * ss = new SoftwareSerial(rxpin, txpin);
@@ -27,10 +35,34 @@ MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type) {
   _serial = ss;
 }
 
+MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type) {
+  SoftwareSerial * ss = new SoftwareSerial(rxpin, txpin);
+  _type = type;
+
+  ss->begin(9600);
+  _serial = ss;
+
+  PwmConfigured = false;
+}
+
+MHZ::MHZ(uint8_t pwmpin, uint8_t type) {
+  _pwmpin = pwmpin;
+  _type = type;
+
+  SerialConfigured = false;
+}
+
 MHZ::MHZ(Stream * serial, uint8_t pwmpin, uint8_t type) {
-    _serial = serial;
-    _pwmpin = pwmpin;
-    _type = type;
+  _serial = serial;
+  _pwmpin = pwmpin;
+  _type = type;
+}
+
+MHZ::MHZ(Stream * serial, uint8_t type) {
+  _serial = serial;
+  _type = type;
+
+  PwmConfigured = false;
 }
 
 /**
@@ -47,9 +79,9 @@ void MHZ::setDebug(boolean enable) {
 
 boolean MHZ::isPreHeating() {
   if (_type == MHZ14A) {
-    return millis() < (3 * 60 * 1000);
+    return millis() < (MHZ14A_PREHEATING_TIME);
   } else if (_type == MHZ19B) {
-    return millis() < (3 * 60 * 1000);
+    return millis() < (MHZ19B_PREHEATING_TIME);
   } else {
     Serial.println(F("MHZ::isPreHeating() => UNKNOWN SENSOR"));
     return false;
@@ -71,6 +103,10 @@ boolean MHZ::isReady() {
 }
 
 int MHZ::readCO2UART() {
+  if (!SerialConfigured) {
+    if (debug) Serial.println(F("-- serial is not configured"));
+    return STATUS_SERIAL_NOT_CONFIGURED;
+  }
   if (!isReady()) return STATUS_NOT_READY;
   if (debug) Serial.println(F("-- read CO2 uart ---"));
   byte cmd[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
@@ -170,12 +206,20 @@ int MHZ::readCO2UART() {
   return ppm_uart;
 }
 
-uint8_t MHZ::getLastTemperature() {
+int MHZ::getLastTemperature() {
+  if (!SerialConfigured) {
+    if (debug) Serial.println(F("-- serial is not configured"));
+    return STATUS_SERIAL_NOT_CONFIGURED;
+  }
   if (isPreHeating()) return STATUS_NOT_READY;
   return temperature;
 }
 
 byte MHZ::getCheckSum(byte* packet) {
+  if (!SerialConfigured) {
+    if (debug) Serial.println(F("-- serial is not configured"));
+    return STATUS_SERIAL_NOT_CONFIGURED;
+  }
   if (debug) Serial.println(F("  getCheckSum()"));
   byte i;
   unsigned char checksum = 0;
@@ -188,7 +232,11 @@ byte MHZ::getCheckSum(byte* packet) {
 }
 
 int MHZ::readCO2PWM() {
-  // if (!isReady()) return STATUS_NOT_READY; not needed?
+  if (!PwmConfigured) {
+    if (debug) Serial.println(F("-- pwm is not configured "));
+    return STATUS_PWM_NOT_CONFIGURED;
+  }
+  //if (!isReady()) return STATUS_NOT_READY; not needed?
   if (debug) Serial.print(F("-- reading CO2 from pwm "));
   unsigned long th, tl, ppm_pwm = 0;
   do {
