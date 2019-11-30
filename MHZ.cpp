@@ -107,7 +107,7 @@ int MHZ::readCO2UART() {
     if (debug) Serial.println(F("-- serial is not configured"));
     return STATUS_SERIAL_NOT_CONFIGURED;
   }
-  if (!isReady()) return STATUS_NOT_READY;
+  //if (!isReady()) return STATUS_NOT_READY; Only get's two readings if this is enabled.
   if (debug) Serial.println(F("-- read CO2 uart ---"));
   byte cmd[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
   byte response[9];  // for answer
