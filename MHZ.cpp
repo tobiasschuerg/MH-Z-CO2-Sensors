@@ -108,10 +108,10 @@ boolean MHZ::isConnected() {
   else if (_type == MHZ19B)
     return lastRequest < millis() - MHZ19B_RESPONSE_TIME;
   else {
-    Serial.print(F("MHZ::isReady() => UNKNOWN SENSOR \""));
+    Serial.print(F("MHZ::isConnected() => UNKNOWN SENSOR \""));
     Serial.print(_type);
     Serial.println(F("\""));
-    return true;
+    return false;
   }
 }
 
