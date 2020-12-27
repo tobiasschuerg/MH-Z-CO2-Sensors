@@ -102,6 +102,19 @@ boolean MHZ::isReady() {
   }
 }
 
+boolean MHZ::isConnected() {
+  if (_type == MHZ14A)
+    return lastRequest < millis() - MHZ14A_RESPONSE_TIME;
+  else if (_type == MHZ19B)
+    return lastRequest < millis() - MHZ19B_RESPONSE_TIME;
+  else {
+    Serial.print(F("MHZ::isReady() => UNKNOWN SENSOR \""));
+    Serial.print(_type);
+    Serial.println(F("\""));
+    return true;
+  }
+}
+
 int MHZ::readCO2UART() {
   if (!SerialConfigured) {
     if (debug) Serial.println(F("-- serial is not configured"));
