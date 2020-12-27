@@ -35,6 +35,7 @@ class MHZ {
 
   boolean isPreHeating();
   boolean isReady();
+  boolean isConnected();
 
   int readCO2UART();
   int readCO2PWM();
