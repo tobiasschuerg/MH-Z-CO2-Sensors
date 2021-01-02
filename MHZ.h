@@ -40,6 +40,7 @@ class MHZ {
   void setAutoCalibrate(boolean b);
   void calibrateZero();
   void setRange(int range);
+ // void calibrateSpan(int range); //only for professional use... see implementation and Dataheet.
 
   int readCO2UART();
   int readCO2PWM();
