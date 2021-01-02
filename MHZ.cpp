@@ -7,6 +7,9 @@
 
 const int MHZ14A = 14;
 const int MHZ19B = 19;
+const int MHZ_2K = 1;
+const int MHZ_5K = 2;
+const int MHZ_10K = 3;
 
 const unsigned long MHZ14A_PREHEATING_TIME = 3L * 60L * 1000L;
 const unsigned long MHZ19B_PREHEATING_TIME = 3L * 60L * 1000L;
@@ -250,4 +253,42 @@ int MHZ::readCO2PWM() {
     Serial.println(ppm_pwm);
   }
   return ppm_pwm;
+}
+
+void MHZ::setAutoCalibrate(boolean b)
+{
+  uint8_t cmd_enableAutoCal[9] = { 0xFF, 0x01, 0x79, 0xA0, 0x00, 0x00, 0x00, 0x00, 0xE6 };
+  uint8_t cmd_disableAutoCal[9] = { 0xFF, 0x01, 0x79, 0x00, 0x00, 0x00, 0x00, 0x00, 0x86};
+  if (b)
+  {
+  _serial->write(cmd_enableAutoCal,9);
+   }
+  else
+  {
+    _serial->write(cmd_disableAutoCal,9);
+  }
+}
+
+void MHZ::setRange(int range)
+{ uint8_t cmd_2K[9] = {0xFF, 0x01, 0x99, 0x00, 0x00, 0x00, 0x07, 0xD0, 0x8F}; 
+  uint8_t cmd_5K[9] = {0xFF, 0x01, 0x99, 0x00, 0x00, 0x00, 0x13, 0x88, 0xCB};
+  uint8_t cmd_10K[9] = {0xFF, 0x01, 0x99, 0x00, 0x00, 0x00, 0x27, 0x10, 0x2F};
+    
+  switch(range)
+  {
+    case 1:
+      _serial->write(cmd_2K,9);
+    case 2:
+      _serial->write(cmd_5K,9);
+    break;
+    case 3: 
+      _serial->write(cmd_10K,9);
+    
+  }
+}
+
+void MHZ::calibrateZero()
+{
+  char cmd[9] = {0xFF, 0x01, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x78};
+  _serial->write(cmd,9);
 }
