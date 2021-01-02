@@ -278,9 +278,10 @@ void MHZ::setRange(int range)
   {
     case 1:
       _serial->write(cmd_2K,9);
+      break;
     case 2:
       _serial->write(cmd_5K,9);
-    break;
+      break;
     case 3: 
       _serial->write(cmd_10K,9);
     
@@ -292,3 +293,29 @@ void MHZ::calibrateZero()
   char cmd[9] = {0xFF, 0x01, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x78};
   _serial->write(cmd,9);
 }
+
+/***** calibrateSpan() function for professional use. requires a constant atmosphere with 2K, 5k or 10k ppm CO2 and calibrateZero at first.
+
+void MHZ::calibrateSpan(int range)
+{
+    char cmd_2K[9] = {0xFF, 0x01, 0x88, 0x07, 0xD0, 0x00, 0x00, 0x00, 0xA0};
+    char cmd_5K[9] = {oxFF, 0x01, 0x88, 0x13, 0x88, 0x00, 0x00, 0x00, 0xDC};
+    char cmd_10K[9]= {0xFF, 0x01, 0x88, 0x27, 0x10, 0x00, 0x00, 0x00, 0x40};
+    
+    switch(range)
+    {
+        case 1:
+            _serial->write(cmd_2K,9);
+            break;
+        case 2:
+            _serial->write(cmd_5K,9);
+            break;
+        case 3:
+             _serial->write(cmd_10k,9);
+      }
+      
+  }
+           
+        
+    
+    
