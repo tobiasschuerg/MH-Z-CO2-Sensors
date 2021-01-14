@@ -16,7 +16,9 @@
 // types of sensors.
 extern const int MHZ14A;
 extern const int MHZ19B;
-
+extern const int MHZ_2K;
+extern const int MHZ_5k;
+extern const int MHZ_10K;
 // status codes
 extern const int STATUS_NO_RESPONSE;
 extern const int STATUS_CHECKSUM_MISMATCH;
@@ -35,6 +37,10 @@ class MHZ {
 
   boolean isPreHeating();
   boolean isReady();
+  void setAutoCalibrate(boolean b);
+  void calibrateZero();
+  void setRange(int range);
+ // void calibrateSpan(int range); //only for professional use... see implementation and Dataheet.
 
   int readCO2UART();
   int readCO2PWM();
