@@ -52,6 +52,11 @@ class MHZ {
 
   Stream * _serial;
   byte getCheckSum(byte *packet);
+
+  unsigned long lastRequest = 0;
+
+  bool SerialConfigured = true;
+  bool PwmConfigured = true;
 };
 
 #endif
