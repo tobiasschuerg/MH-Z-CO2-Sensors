@@ -24,11 +24,6 @@ const int STATUS_NOT_READY = -5;
 const int STATUS_PWM_NOT_CONFIGURED = -6;
 const int STATUS_SERIAL_NOT_CONFIGURED = -7;
 
-unsigned long lastRequest = 0;
-
-bool SerialConfigured = true;
-bool PwmConfigured = true;
-
 MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type) {
   SoftwareSerial * ss = new SoftwareSerial(rxpin, txpin);
   _pwmpin = pwmpin;
