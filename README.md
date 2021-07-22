@@ -1,6 +1,6 @@
 # MH-Z14A, MH-Z19B CO2 ... Module
 
-Arduino implementation for MH-Z CO2 sensors such as **MH-Z14A**, **MH-Z18B** (as I didn't find all info in one place).
+Arduino implementation for MH-Z CO2 sensors such as **MH-Z14A**, **MH-Z19B** (as I didn't find all info in one place).
 
 The sensor is available for ~20 bucks at the usual places.
 
