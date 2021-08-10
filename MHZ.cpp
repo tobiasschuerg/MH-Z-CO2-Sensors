@@ -14,8 +14,8 @@ const int MHZ_10K = 3;
 const unsigned long MHZ14A_PREHEATING_TIME = 3L * 60L * 1000L;
 const unsigned long MHZ19B_PREHEATING_TIME = 3L * 60L * 1000L;
 
-const unsigned long MHZ14A_RESPONSE_TIME = 60 * 1000;
-const unsigned long MHZ19B_RESPONSE_TIME = 120 * 1000;
+const unsigned long MHZ14A_RESPONSE_TIME = (unsigned long)60 * 1000;
+const unsigned long MHZ19B_RESPONSE_TIME = (unsigned long)120 * 1000;
 
 const int STATUS_NO_RESPONSE = -2;
 const int STATUS_CHECKSUM_MISMATCH = -3;
