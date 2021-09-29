@@ -32,6 +32,7 @@ class MHZ {
   MHZ(uint8_t pwmpin, uint8_t type);
   MHZ(Stream * serial, uint8_t pwmpin, uint8_t type);
   MHZ(Stream * serial, uint8_t type);
+  ~MHZ();
 
   void setDebug(boolean enable);
 

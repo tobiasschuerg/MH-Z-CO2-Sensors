@@ -43,7 +43,7 @@ MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type) {
   PwmConfigured = false;
 }
 
-MHZ::MHZ(uint8_t pwmpin, uint8_t type) {
+MHZ::MHZ(uint8_t pwmpin, uint8_t type):_serial(nullptr) {
   _pwmpin = pwmpin;
   _type = type;
 
@@ -61,6 +61,11 @@ MHZ::MHZ(Stream * serial, uint8_t type) {
   _type = type;
 
   PwmConfigured = false;
+}
+
+MHZ::~MHZ(){
+  if(_serial != nullptr)
+	  delete _serial;
 }
 
 /**
