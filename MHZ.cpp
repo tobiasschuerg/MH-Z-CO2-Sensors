@@ -6,16 +6,19 @@
 #include "MHZ.h"
 
 const int MHZ14A = 14;
-const int MHZ19B = 19;
+const int MHZ19B = 119;
+const int MHZ19C = 219;
 const int MHZ_2K = 1;
 const int MHZ_5K = 2;
 const int MHZ_10K = 3;
 
 const unsigned long MHZ14A_PREHEATING_TIME = 3L * 60L * 1000L;
 const unsigned long MHZ19B_PREHEATING_TIME = 3L * 60L * 1000L;
+const unsigned long MHZ19C_PREHEATING_TIME = 1L * 60L * 1000L;
 
 const unsigned long MHZ14A_RESPONSE_TIME = (unsigned long)60 * 1000;
 const unsigned long MHZ19B_RESPONSE_TIME = (unsigned long)120 * 1000;
+const unsigned long MHZ19C_RESPONSE_TIME = (unsigned long)120 * 1000;
 
 const int STATUS_NO_RESPONSE = -2;
 const int STATUS_CHECKSUM_MISMATCH = -3;
@@ -80,6 +83,8 @@ boolean MHZ::isPreHeating() {
     return millis() < (MHZ14A_PREHEATING_TIME);
   } else if (_type == MHZ19B) {
     return millis() < (MHZ19B_PREHEATING_TIME);
+  } else if (_type == MHZ19C) {
+    return millis() < (MHZ19C_PREHEATING_TIME);
   } else {
     Serial.println(F("MHZ::isPreHeating() => UNKNOWN SENSOR"));
     return false;
@@ -87,12 +92,15 @@ boolean MHZ::isPreHeating() {
 }
 
 boolean MHZ::isReady() {
-  if (isPreHeating()) return false;
-  if (_type == MHZ14A)
+  if (isPreHeating()) {
+    return false;
+  } else if (_type == MHZ14A) {
     return lastRequest < millis() - MHZ14A_RESPONSE_TIME;
-  else if (_type == MHZ19B)
+  } else if (_type == MHZ19B) {
     return lastRequest < millis() - MHZ19B_RESPONSE_TIME;
-  else {
+  } else if (_type == MHZ19C) {
+    return lastRequest < millis() - MHZ19C_RESPONSE_TIME;
+  } else {
     Serial.print(F("MHZ::isReady() => UNKNOWN SENSOR \""));
     Serial.print(_type);
     Serial.println(F("\""));
@@ -250,7 +258,7 @@ int MHZ::readCO2PWM() {
   return ppm_pwm;
 }
 
-void MHZ::setAutoCalibrate(boolean b)  //only available for MHZ-19B with firmware < 1.6 and MHZ 14a
+void MHZ::setAutoCalibrate(boolean b)  //only available for MHZ-19B with firmware < 1.6, MHZ-19C and MHZ 14a
 {
   uint8_t cmd_enableAutoCal[9] = { 0xFF, 0x01, 0x79, 0xA0, 0x00, 0x00, 0x00, 0x00, 0xE6 };
   uint8_t cmd_disableAutoCal[9] = { 0xFF, 0x01, 0x79, 0x00, 0x00, 0x00, 0x00, 0x00, 0x86};
