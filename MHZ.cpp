@@ -292,6 +292,12 @@ void MHZ::setRange(int range) //only available for MHZ-19B < 1.6 and MH-Z 14a
   }
 }
 
+void MHZ::reset()
+{
+  uint8_t cmd[9] = {0xFF, 0x01, 0x8d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x72};
+  _serial->write(cmd,9);
+}
+
 void MHZ::calibrateZero()
 {
   uint8_t cmd[9] = {0xFF, 0x01, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x78};
@@ -320,7 +326,3 @@ void MHZ::calibrateSpan(int range)
       
   }
   ****/
-           
-        
-    
-    
