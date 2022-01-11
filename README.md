@@ -33,6 +33,6 @@ https://revspace.nl/MHZ19
 ## Further reading:
 - http://ihormelnyk.com/Page/mh-z19_co2_meter
 
-(russuian, but google translate does a good job)
-- https://geektimes.ru/post/285572/
-- https://geektimes.ru/post/278178/
+Russian, but google translate does a good job:
+- [https://geektimes.ru/post/285572/](https://habr-com.translate.goog/en/post/401363/?_x_tr_sl=auto&_x_tr_tl=en&_x_tr_hl=nl)
+- [https://geektimes.ru/post/278178/](https://habr-com.translate.goog/en/post/278178/?_x_tr_sl=auto&_x_tr_tl=en&_x_tr_hl=nl)
