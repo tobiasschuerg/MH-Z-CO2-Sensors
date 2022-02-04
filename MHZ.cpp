@@ -20,6 +20,8 @@ const unsigned long MHZ14A_RESPONSE_TIME = (unsigned long)60 * 1000;
 const unsigned long MHZ19B_RESPONSE_TIME = (unsigned long)120 * 1000;
 const unsigned long MHZ19C_RESPONSE_TIME = (unsigned long)120 * 1000;
 
+const unsigned long AFTER_RESET_RESPONSE_TIME = 3L * 60L * 1000L;
+
 const int STATUS_NO_RESPONSE = -2;
 const int STATUS_CHECKSUM_MISMATCH = -3;
 const int STATUS_INCOMPLETE = -4;
@@ -296,6 +298,7 @@ void MHZ::reset()
 {
   uint8_t cmd[9] = {0xFF, 0x01, 0x8d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x72};
   _serial->write(cmd,9);
+  lastRequest = AFTER_RESET_RESPONSE_TIME + millis();
 }
 
 void MHZ::calibrateZero()
