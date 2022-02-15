@@ -249,7 +249,7 @@ int MHZ::readCO2PWM() {
     if (debug) Serial.print(".");
     th = pulseIn(_pwmpin, HIGH, 1004000) / 1000;
     tl = 1004 - th;
-    ppm_pwm = 2000 * (th - 2) / (th + tl - 4);
+    ppm_pwm = 5000 * (th - 2) / (th + tl - 4);
   } while (th == 0);
   if (debug) {
     Serial.print(F("\n # PPM PWM: "));
