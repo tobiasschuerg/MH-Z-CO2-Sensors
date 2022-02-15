@@ -122,6 +122,7 @@ int MHZ::readCO2UART() {
 
   if (debug) Serial.print(F("  >> Sending CO2 request"));
   _serial->write(cmd, 9);  // request PPM CO2
+  _serial->flush(); //Waits for the transmission of outgoing serial data to complete. 
   lastRequest = millis();
 
   // clear the buffer
