@@ -27,10 +27,10 @@ const int STATUS_NOT_READY = -5;
 const int STATUS_PWM_NOT_CONFIGURED = -6;
 const int STATUS_SERIAL_NOT_CONFIGURED = -7;
 
-const int RANGE_2K = 2000;
-const int RANGE_5K = 5000;
+const unsigned long RANGE_2K = 2000;
+const unsigned long RANGE_5K = 5000;
 
-MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, uint8_t range = RANGE_5K) {
+MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, unsigned long range = RANGE_5K) {
   SoftwareSerial * ss = new SoftwareSerial(rxpin, txpin);
   _pwmpin = pwmpin;
   _type = type;
@@ -50,7 +50,7 @@ MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type) {
   PwmConfigured = false;
 }
 
-MHZ::MHZ(uint8_t pwmpin, uint8_t type, uint8_t range = RANGE_5K) {
+MHZ::MHZ(uint8_t pwmpin, uint8_t type, unsigned long range = RANGE_5K) {
   _pwmpin = pwmpin;
   _type = type;
   _range = range;
@@ -58,7 +58,7 @@ MHZ::MHZ(uint8_t pwmpin, uint8_t type, uint8_t range = RANGE_5K) {
   SerialConfigured = false;
 }
 
-MHZ::MHZ(Stream * serial, uint8_t pwmpin, uint8_t type, uint8_t range = RANGE_5K) {
+MHZ::MHZ(Stream * serial, uint8_t pwmpin, uint8_t type, unsigned long range = RANGE_5K) {
   _serial = serial;
   _pwmpin = pwmpin;
   _type = type;
@@ -255,7 +255,7 @@ int MHZ::readCO2PWM() {
     if (debug) Serial.print(".");
     th = pulseIn(_pwmpin, HIGH, 1004000) / 1000;
     tl = 1004 - th;
-    ppm_pwm = (unsigned long)_range * (th - 2) / (th + tl - 4);
+    ppm_pwm = _range * (th - 2) / (th + tl - 4);
   } while (th == 0);
   if (debug) {
     Serial.print(F("\n # PPM PWM: "));

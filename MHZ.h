@@ -25,15 +25,15 @@ extern const int STATUS_NO_RESPONSE;
 extern const int STATUS_CHECKSUM_MISMATCH;
 extern const int STATUS_INCOMPLETE;
 extern const int STATUS_NOT_READY;
-extern const int RANGE_2K;
-extern const int RANGE_5K;
+extern const unsigned long RANGE_2K;
+extern const unsigned long RANGE_5K;
 
 class MHZ {
  public:
-  MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, uint8_t range);
+  MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, unsigned long range);
   MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type);
-  MHZ(uint8_t pwmpin, uint8_t type, uint8_t range);
-  MHZ(Stream * serial, uint8_t pwmpin, uint8_t type, uint8_t range);
+  MHZ(uint8_t pwmpin, uint8_t type, unsigned long range);
+  MHZ(Stream * serial, uint8_t pwmpin, uint8_t type, unsigned long range);
   MHZ(Stream * serial, uint8_t type);
 
   void setDebug(boolean enable);
@@ -51,7 +51,7 @@ class MHZ {
 
  private:
   uint8_t _pwmpin, _type, temperature;
-  uint8_t _range;
+  unsigned long _range;
   boolean debug = false;
 
   Stream * _serial;
