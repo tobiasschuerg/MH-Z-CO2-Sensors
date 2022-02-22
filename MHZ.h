@@ -25,6 +25,7 @@ extern const int STATUS_NO_RESPONSE;
 extern const int STATUS_CHECKSUM_MISMATCH;
 extern const int STATUS_INCOMPLETE;
 extern const int STATUS_NOT_READY;
+
 extern const int RANGE_2K;
 extern const int RANGE_5K;
 
@@ -34,6 +35,7 @@ class MHZ {
   MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type);
   MHZ(uint8_t pwmpin, uint8_t type, uint16_t range = RANGE_5K);
   MHZ(Stream * serial, uint8_t pwmpin, uint8_t type, uint16_t range = RANGE_5K);
+
   MHZ(Stream * serial, uint8_t type);
 
   void setDebug(boolean enable);

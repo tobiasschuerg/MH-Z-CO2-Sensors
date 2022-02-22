@@ -26,6 +26,7 @@ const int STATUS_INCOMPLETE = -4;
 const int STATUS_NOT_READY = -5;
 const int STATUS_PWM_NOT_CONFIGURED = -6;
 const int STATUS_SERIAL_NOT_CONFIGURED = -7;
+
 const int RANGE_2K = 2000;
 const int RANGE_5K = 5000;
 
