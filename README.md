@@ -17,6 +17,17 @@ C ppm = 5000 * (T_high - 2 ms) / (T_high + T_low - 4ms)
 
 The implementation is mostly based on  https://forum.arduino.cc/index.php?topic=525459.msg3587557#msg3587557
 
+## Usage
+By default the PWM range value is set to 5000 and there is no need to change anything in the class constructor (if the Cppm value is in the expected range 400-1000), otherwise you may want to test it with 2000 range value :
+```
+#include <MHZ.h>
+#define CO2_IN 9
+#define MH_Z19_RX 10
+#define MH_Z19_TX 11
+
+MHZ co2(MH_Z19_RX, MH_Z19_TX, CO2_IN, MHZ19B); // here the range value is set to 5000 by default (RANGE_5K)
+MHZ co2(MH_Z19_RX, MH_Z19_TX, CO2_IN, MHZ19B, RANGE_2K); // here the range value is set to 2000
+```
 
 ## Resources:
 
