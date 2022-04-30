@@ -26,15 +26,14 @@ extern const int STATUS_CHECKSUM_MISMATCH;
 extern const int STATUS_INCOMPLETE;
 extern const int STATUS_NOT_READY;
 
-extern const int RANGE_2K;
-extern const int RANGE_5K;
+enum Ranges {RANGE_2K = 2000, RANGE_5K = 5000};
 
 class MHZ {
  public:
-  MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, uint16_t range = RANGE_5K);
+  MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, Ranges range = RANGE_5K);
   MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type);
-  MHZ(uint8_t pwmpin, uint8_t type, uint16_t range = RANGE_5K);
-  MHZ(Stream * serial, uint8_t pwmpin, uint8_t type, uint16_t range = RANGE_5K);
+  MHZ(uint8_t pwmpin, uint8_t type, Ranges range = RANGE_5K);
+  MHZ(Stream * serial, uint8_t pwmpin, uint8_t type, Ranges range = RANGE_5K);
 
   MHZ(Stream * serial, uint8_t type);
 
@@ -53,7 +52,7 @@ class MHZ {
 
  private:
   uint8_t _pwmpin, _type, temperature;
-  uint16_t _range = 0;
+  Ranges _range = RANGE_5K;
   boolean debug = false;
 
   Stream * _serial;
