@@ -37,7 +37,7 @@ class MHZ {
 
   MHZ(Stream * serial, uint8_t type);
 
-  void setDebug(boolean enable);
+ void setDebug(boolean enable,Stream *console = &Serial);
 
   boolean isPreHeating();
   boolean isReady();
@@ -56,6 +56,7 @@ class MHZ {
   boolean debug = false;
 
   Stream * _serial;
+  Stream * _console;
   byte getCheckSum(byte *packet);
 
   unsigned long lastRequest = 0;
