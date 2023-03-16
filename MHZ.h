@@ -49,6 +49,7 @@ class MHZ {
   int readCO2UART();
   int readCO2PWM();
   int getLastTemperature();
+  unsigned long getTimeDiff(unsigned long t1, unsigned long t2);
 
  private:
   uint8_t _pwmpin, _type, temperature;
