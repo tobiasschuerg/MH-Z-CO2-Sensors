@@ -4,6 +4,7 @@
 */
 
 #include "MHZ.h"
+#include <limits.h>
 
 const int MHZ14A = 14;
 const int MHZ19B = 119;
@@ -98,11 +99,11 @@ boolean MHZ::isReady() {
   if (isPreHeating()) {
     return false;
   } else if (_type == MHZ14A) {
-    return lastRequest < millis() - MHZ14A_RESPONSE_TIME;
+    return getTimeDiff(lastRequest, millis()) > MHZ14A_RESPONSE_TIME;
   } else if (_type == MHZ19B) {
-    return lastRequest < millis() - MHZ19B_RESPONSE_TIME;
+    return getTimeDiff(lastRequest, millis()) > MHZ19B_RESPONSE_TIME;
   } else if (_type == MHZ19C) {
-    return lastRequest < millis() - MHZ19C_RESPONSE_TIME;
+    return getTimeDiff(lastRequest, millis()) > MHZ14C_RESPONSE_TIME;
   } else {
     _console->print(F("MHZ::isReady() => UNKNOWN SENSOR \""));
     _console->print(_type);
@@ -303,6 +304,12 @@ void MHZ::calibrateZero()
 {
   uint8_t cmd[9] = {0xFF, 0x01, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x78};
   _serial->write(cmd,9);
+}
+
+unsigned long MHZ::getTimeDiff(unsigned long t1, unsigned long t2) {
+  if (t1 < t2)
+    return (UL_MAX  - t2) + t1;
+  return t1 - t2;
 }
 
 /***** calibrateSpan() function for professional use. requires a constant atmosphere with 2K, 5k or 10k ppm CO2 and calibrateZero at first.
