@@ -103,7 +103,7 @@ boolean MHZ::isReady() {
   } else if (_type == MHZ19B) {
     return getTimeDiff(lastRequest, millis()) > MHZ19B_RESPONSE_TIME;
   } else if (_type == MHZ19C) {
-    return getTimeDiff(lastRequest, millis()) > MHZ14C_RESPONSE_TIME;
+    return getTimeDiff(lastRequest, millis()) > MHZ19C_RESPONSE_TIME;
   } else {
     _console->print(F("MHZ::isReady() => UNKNOWN SENSOR \""));
     _console->print(_type);
@@ -254,7 +254,7 @@ int MHZ::readCO2PWM() {
     th = pulseIn(_pwmpin, HIGH, 1004000) / 1000;
     tl = 1004 - th;
     ppm_pwm = _range * (th - 2) / (th + tl - 4);
-    if (millis() - start > 90 * 1000) { // Timeout after 90 seconds
+    if (getTimeDiff(start, millis()) > 90 * 1000) { // Timeout after 90 seconds
         _console->print("Unable to read value. Timeout.");
         break;
     }
@@ -306,10 +306,10 @@ void MHZ::calibrateZero()
   _serial->write(cmd,9);
 }
 
-unsigned long MHZ::getTimeDiff(unsigned long t1, unsigned long t2) {
-  if (t1 < t2)
-    return (UL_MAX  - t2) + t1;
-  return t1 - t2;
+unsigned long MHZ::getTimeDiff(unsigned long start, unsigned long stop) {
+  if (stop < start)
+    return (ULONG_MAX  - start) + stop;
+  return stop - start;
 }
 
 /***** calibrateSpan() function for professional use. requires a constant atmosphere with 2K, 5k or 10k ppm CO2 and calibrateZero at first.
