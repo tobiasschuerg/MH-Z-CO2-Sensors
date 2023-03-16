@@ -255,6 +255,7 @@ int MHZ::readCO2PWM() {
     ppm_pwm = _range * (th - 2) / (th + tl - 4);
     if (millis() - start > 90 * 1000) { // Timeout after 90 seconds
         _console->print("Unable to read value. Timeout.");
+        break;
     }
   } while (th == 0);
   if (debug) {
