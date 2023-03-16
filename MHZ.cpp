@@ -247,12 +247,15 @@ int MHZ::readCO2PWM() {
   }
   //if (!isReady()) return STATUS_NOT_READY; not needed?
   if (debug) _console->print(F("-- reading CO2 from pwm "));
-  unsigned long th, tl, ppm_pwm = 0;
+  unsigned long th, tl, ppm_pwm = 0, start = millis();
   do {
     if (debug) _console->print(".");
     th = pulseIn(_pwmpin, HIGH, 1004000) / 1000;
     tl = 1004 - th;
     ppm_pwm = _range * (th - 2) / (th + tl - 4);
+    if (millis() - start > 90 * 1000) { // Timeout after 90 seconds
+        _console->print("Unable to read value. Timeout.");
+    }
   } while (th == 0);
   if (debug) {
     _console->print(F("\n # PPM PWM: "));
