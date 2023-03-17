@@ -4,7 +4,6 @@
 */
 
 #include "MHZ.h"
-#include <limits.h>
 
 const int MHZ14A = 14;
 const int MHZ19B = 119;
@@ -28,9 +27,32 @@ const int STATUS_NOT_READY = -5;
 const int STATUS_PWM_NOT_CONFIGURED = -6;
 const int STATUS_SERIAL_NOT_CONFIGURED = -7;
 
+uint8_t sPwmPin = 5;
+unsigned long sPulseInStartMillis, sLastPwmPpm = 0;
+
+unsigned long getTimeDiff(unsigned long start, unsigned long stop) {
+  if (stop < start)
+    return (ULONG_MAX  - start) + stop;
+  return stop - start;
+}
+
+void IRAM_ATTR pulseInInterruptHandler(){
+
+	int state = digitalRead(sPwmPin);
+
+	if (state == true) { // rising edge
+		sPulseInStartMillis = millis();
+	}
+	else { // End of pulse
+		sLastPwmPpm = getTimeDiff(sPulseInStartMillis, millis());
+	}
+}
+
+
 MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, Ranges range) {
   SoftwareSerial * ss = new SoftwareSerial(rxpin, txpin);
   _pwmpin = pwmpin;
+  sPwmPin = pwmpin;
   _type = type;
   _range = range;
 
@@ -50,6 +72,7 @@ MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type) {
 
 MHZ::MHZ(uint8_t pwmpin, uint8_t type, Ranges range) {
   _pwmpin = pwmpin;
+  sPwmPin = pwmpin;
   _type = type;
   _range = range;
   SerialConfigured = false;
@@ -58,6 +81,7 @@ MHZ::MHZ(uint8_t pwmpin, uint8_t type, Ranges range) {
 MHZ::MHZ(Stream * serial, uint8_t pwmpin, uint8_t type, Ranges range) {
   _serial = serial;
   _pwmpin = pwmpin;
+  sPwmPin = pwmpin;
   _type = type;
   _range = range;
 }
@@ -67,6 +91,10 @@ MHZ::MHZ(Stream * serial, uint8_t type) {
   _type = type;
 
   PwmConfigured = false;
+}
+
+void MHZ::activateAsyncUARTReading() {
+  attachInterrupt(digitalPinToInterrupt(sPwmPin), pulseInInterruptHandler, CHANGE);
 }
 
 /**
@@ -99,7 +127,7 @@ boolean MHZ::isReady() {
   if (isPreHeating()) {
     return false;
   } else if (_type == MHZ14A) {
-    return getTimeDiff(lastRequest, millis()) > MHZ14A_RESPONSE_TIME;
+    return getTimeDiff(lastRequest, millis()) > MHZ14A_RESPONSE_TIME;	  
   } else if (_type == MHZ19B) {
     return getTimeDiff(lastRequest, millis()) > MHZ19B_RESPONSE_TIME;
   } else if (_type == MHZ19C) {
@@ -225,6 +253,10 @@ int MHZ::getLastTemperature() {
   return temperature;
 }
 
+int MHZ::getLastCO2() {
+	return sLastPwmPpm;
+}
+
 byte MHZ::getCheckSum(byte* packet) {
   if (!SerialConfigured) {
     if (debug) _console->println(F("-- serial is not configured"));
@@ -304,12 +336,6 @@ void MHZ::calibrateZero()
 {
   uint8_t cmd[9] = {0xFF, 0x01, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x78};
   _serial->write(cmd,9);
-}
-
-unsigned long MHZ::getTimeDiff(unsigned long start, unsigned long stop) {
-  if (stop < start)
-    return (ULONG_MAX  - start) + stop;
-  return stop - start;
 }
 
 /***** calibrateSpan() function for professional use. requires a constant atmosphere with 2K, 5k or 10k ppm CO2 and calibrateZero at first.
