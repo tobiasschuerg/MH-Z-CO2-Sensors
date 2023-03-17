@@ -45,6 +45,9 @@ void IRAM_ATTR pulseInInterruptHandler(){
 	}
 	else { // End of pulse
 		unsigned long th = getTimeDiff(sPulseInStartMillis, millis());
+		if (th > 1004 || th < 1) {
+			return 0;
+		}
 		unsigned long tl = 1004 - th;
 		sLastPwmPpm = sRange * (th - 2) / (th + tl - 4);		
 	}
