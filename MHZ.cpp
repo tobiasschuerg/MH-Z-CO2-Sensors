@@ -50,7 +50,7 @@ void IRAM_ATTR pulseInInterruptHandler(){
 			return;
 		}
 		unsigned long tl = 1004 - th;
-		sLastPwmPpm = sRange * (th - 2) / (th + tl - 4);		
+		sLastPwmPpm = (th - 2) * sRange / 1000;		
 	}
 }
 
