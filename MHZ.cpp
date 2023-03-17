@@ -27,8 +27,10 @@ const int STATUS_NOT_READY = -5;
 const int STATUS_PWM_NOT_CONFIGURED = -6;
 const int STATUS_SERIAL_NOT_CONFIGURED = -7;
 
-uint8_t sPwmPin = 5, sRange = 5000;
-unsigned long sPulseInStartMillis, sLastPwmPpm = 0;
+uint8_t sPwmPin = 5;
+int sRange = 5000;
+unsigned long sHighStartsMillis, sLowStartsMillis, sTl, sTh, sLastPwmPpm = 0;
+Stream * sConsole;
 
 unsigned long getTimeDiff(unsigned long start, unsigned long stop) {
   if (stop < start)
@@ -38,19 +40,27 @@ unsigned long getTimeDiff(unsigned long start, unsigned long stop) {
 
 void IRAM_ATTR pulseInInterruptHandler(){
 
+	unsigned long now = millis();
 	int state = digitalRead(sPwmPin);
 
 	if (state == true) { // rising edge
-		sPulseInStartMillis = millis();
-	}
-	else { // End of pulse
-		unsigned long th = getTimeDiff(sPulseInStartMillis, millis());
-		if (th > 1004 || th < 1) {
+		sTl = getTimeDiff(sLowStartsMillis, now);
+		sHighStartsMillis = now;
+
+		if (sTh > 1004 || sTh < 1) {
 			sLastPwmPpm = 0;
 			return;
 		}
-		unsigned long tl = 1004 - th;
-		sLastPwmPpm = (th - 2) * sRange / 1000;		
+		
+		sLastPwmPpm = ((sTh - 2) * sRange) / (sTh+sTl -4);	
+		if (sConsole != NULL) {
+			sConsole->print("PWM PPM:");
+			sConsole->println(sLastPwmPpm);
+		}		
+	}
+	else { // End of pulse
+		sTh = getTimeDiff(sHighStartsMillis, now);
+	    sLowStartsMillis = now;	
 	}
 }
 
@@ -61,7 +71,7 @@ MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, Ranges rang
   sPwmPin = pwmpin;
   _type = type;
   _range = range;
-  sRange = (uint) range;
+  sRange =  range;
 
   ss->begin(9600);
   _serial = ss;
@@ -80,7 +90,7 @@ MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type) {
 MHZ::MHZ(uint8_t pwmpin, uint8_t type, Ranges range) {
   _pwmpin = pwmpin;
   sPwmPin = pwmpin;
-  sRange = (uint) range;
+  sRange =  range;
   _type = type;
   _range = range;
   SerialConfigured = false;
@@ -90,7 +100,7 @@ MHZ::MHZ(Stream * serial, uint8_t pwmpin, uint8_t type, Ranges range) {
   _serial = serial;
   _pwmpin = pwmpin;
   sPwmPin = pwmpin;
-  sRange = (uint) range;
+  sRange =  range;
   _type = type;
   _range = range;
 }
@@ -112,6 +122,7 @@ void MHZ::activateAsyncUARTReading() {
 void MHZ::setDebug(boolean enable, Stream *console) {
   debug = enable;
   _console = console;
+  sConsole = console;
   if (debug) {
     _console->println(F("MHZ: debug mode ENABLED"));
   } else {
