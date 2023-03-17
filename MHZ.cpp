@@ -27,7 +27,7 @@ const int STATUS_NOT_READY = -5;
 const int STATUS_PWM_NOT_CONFIGURED = -6;
 const int STATUS_SERIAL_NOT_CONFIGURED = -7;
 
-uint8_t sPwmPin = 5;
+uint8_t sPwmPin = 5, sRange = 5000;
 unsigned long sPulseInStartMillis, sLastPwmPpm = 0;
 
 unsigned long getTimeDiff(unsigned long start, unsigned long stop) {
@@ -44,7 +44,9 @@ void IRAM_ATTR pulseInInterruptHandler(){
 		sPulseInStartMillis = millis();
 	}
 	else { // End of pulse
-		sLastPwmPpm = getTimeDiff(sPulseInStartMillis, millis());
+		unsigned long th = getTimeDiff(sPulseInStartMillis, millis());
+		unsigned long tl = 1004 - th;
+		sLastPwmPpm = sRange * (th - 2) / (th + tl - 4);		
 	}
 }
 
@@ -55,6 +57,7 @@ MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, Ranges rang
   sPwmPin = pwmpin;
   _type = type;
   _range = range;
+  sRange = (uint) range;
 
   ss->begin(9600);
   _serial = ss;
@@ -73,6 +76,7 @@ MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type) {
 MHZ::MHZ(uint8_t pwmpin, uint8_t type, Ranges range) {
   _pwmpin = pwmpin;
   sPwmPin = pwmpin;
+  sRange = (uint) range;
   _type = type;
   _range = range;
   SerialConfigured = false;
@@ -82,6 +86,7 @@ MHZ::MHZ(Stream * serial, uint8_t pwmpin, uint8_t type, Ranges range) {
   _serial = serial;
   _pwmpin = pwmpin;
   sPwmPin = pwmpin;
+  sRange = (uint) range;
   _type = type;
   _range = range;
 }
