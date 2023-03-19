@@ -14,7 +14,6 @@
 #include <SoftwareSerial.h>
 #include <limits.h>
 
-
 // types of sensors.
 extern const int MHZ14A;
 extern const int MHZ19B;
@@ -28,26 +27,25 @@ extern const int STATUS_CHECKSUM_MISMATCH;
 extern const int STATUS_INCOMPLETE;
 extern const int STATUS_NOT_READY;
 
-enum Ranges {RANGE_2K = 2000, RANGE_5K = 5000};
-
+enum Ranges { RANGE_2K = 2000, RANGE_5K = 5000 };
 
 class MHZ {
  public:
   MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, Ranges range = RANGE_5K);
   MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type);
   MHZ(uint8_t pwmpin, uint8_t type, Ranges range = RANGE_5K);
-  MHZ(Stream * serial, uint8_t pwmpin, uint8_t type, Ranges range = RANGE_5K);
+  MHZ(Stream *serial, uint8_t pwmpin, uint8_t type, Ranges range = RANGE_5K);
 
-  MHZ(Stream * serial, uint8_t type);
+  MHZ(Stream *serial, uint8_t type);
 
- void setDebug(boolean enable,Stream *console = &Serial);
+  void setDebug(boolean enable, Stream *console = &Serial);
 
   boolean isPreHeating();
   boolean isReady();
   void setAutoCalibrate(boolean b);
   void calibrateZero();
   void setRange(int range);
- // void calibrateSpan(int range); //only for professional use... see implementation and Dataheet.
+  // void calibrateSpan(int range); //only for professional use... see implementation and Dataheet.
 
   int readCO2UART();
   int readCO2PWM();
@@ -60,8 +58,8 @@ class MHZ {
   Ranges _range = RANGE_5K;
   boolean debug = false;
 
-  Stream * _serial;
-  Stream * _console;
+  Stream *_serial;
+  Stream *_console;
   byte getCheckSum(byte *packet);
 
   unsigned long lastRequest = 0;
