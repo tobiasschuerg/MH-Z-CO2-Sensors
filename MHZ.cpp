@@ -27,11 +27,51 @@ const int STATUS_NOT_READY = -5;
 const int STATUS_PWM_NOT_CONFIGURED = -6;
 const int STATUS_SERIAL_NOT_CONFIGURED = -7;
 
+uint8_t sPwmPin = 5;
+int sRange = 5000;
+unsigned long sHighStartsMillis, sLowStartsMillis, sTl, sTh, sLastPwmPpm = 0;
+Stream * sConsole;
+
+unsigned long getTimeDiff(unsigned long start, unsigned long stop) {
+  if (stop < start)
+    return (ULONG_MAX  - start) + stop;
+  return stop - start;
+}
+
+void IRAM_ATTR pulseInInterruptHandler(){
+
+	unsigned long now = millis();
+	int state = digitalRead(sPwmPin);
+
+	if (state == true) { // rising edge
+		sTl = getTimeDiff(sLowStartsMillis, now);
+		sHighStartsMillis = now;
+
+		if (sTh > 1004 || sTh < 1) {
+			sLastPwmPpm = 0;
+			return;
+		}
+		
+		sLastPwmPpm = ((sTh - 2) * sRange) / (sTh+sTl -4);	
+		if (sConsole != NULL) {
+			sConsole->print("PWM PPM:");
+			sConsole->println(sLastPwmPpm);
+		}		
+	}
+	else { // End of pulse
+		sTh = getTimeDiff(sHighStartsMillis, now);
+	    sLowStartsMillis = now;	
+	}
+}
+
+
 MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, Ranges range) {
   SoftwareSerial * ss = new SoftwareSerial(rxpin, txpin);
   _pwmpin = pwmpin;
+  sPwmPin = pwmpin;
   _type = type;
   _range = range;
+  sRange =  range;
 
   ss->begin(9600);
   _serial = ss;
@@ -49,6 +89,8 @@ MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type) {
 
 MHZ::MHZ(uint8_t pwmpin, uint8_t type, Ranges range) {
   _pwmpin = pwmpin;
+  sPwmPin = pwmpin;
+  sRange =  range;
   _type = type;
   _range = range;
   SerialConfigured = false;
@@ -57,6 +99,8 @@ MHZ::MHZ(uint8_t pwmpin, uint8_t type, Ranges range) {
 MHZ::MHZ(Stream * serial, uint8_t pwmpin, uint8_t type, Ranges range) {
   _serial = serial;
   _pwmpin = pwmpin;
+  sPwmPin = pwmpin;
+  sRange =  range;
   _type = type;
   _range = range;
 }
@@ -68,12 +112,17 @@ MHZ::MHZ(Stream * serial, uint8_t type) {
   PwmConfigured = false;
 }
 
+void MHZ::activateAsyncUARTReading() {
+  attachInterrupt(digitalPinToInterrupt(sPwmPin), pulseInInterruptHandler, CHANGE);
+}
+
 /**
  * Enables or disables the debug mode (more logging).
  */
 void MHZ::setDebug(boolean enable, Stream *console) {
   debug = enable;
   _console = console;
+  sConsole = console;
   if (debug) {
     _console->println(F("MHZ: debug mode ENABLED"));
   } else {
@@ -98,11 +147,11 @@ boolean MHZ::isReady() {
   if (isPreHeating()) {
     return false;
   } else if (_type == MHZ14A) {
-    return lastRequest < millis() - MHZ14A_RESPONSE_TIME;
+    return getTimeDiff(lastRequest, millis()) > MHZ14A_RESPONSE_TIME;	  
   } else if (_type == MHZ19B) {
-    return lastRequest < millis() - MHZ19B_RESPONSE_TIME;
+    return getTimeDiff(lastRequest, millis()) > MHZ19B_RESPONSE_TIME;
   } else if (_type == MHZ19C) {
-    return lastRequest < millis() - MHZ19C_RESPONSE_TIME;
+    return getTimeDiff(lastRequest, millis()) > MHZ19C_RESPONSE_TIME;
   } else {
     _console->print(F("MHZ::isReady() => UNKNOWN SENSOR \""));
     _console->print(_type);
@@ -224,6 +273,10 @@ int MHZ::getLastTemperature() {
   return temperature;
 }
 
+int MHZ::getLastCO2() {
+	return sLastPwmPpm;
+}
+
 byte MHZ::getCheckSum(byte* packet) {
   if (!SerialConfigured) {
     if (debug) _console->println(F("-- serial is not configured"));
@@ -247,12 +300,16 @@ int MHZ::readCO2PWM() {
   }
   //if (!isReady()) return STATUS_NOT_READY; not needed?
   if (debug) _console->print(F("-- reading CO2 from pwm "));
-  unsigned long th, tl, ppm_pwm = 0;
+  unsigned long th, tl, ppm_pwm = 0, start = millis();
   do {
     if (debug) _console->print(".");
     th = pulseIn(_pwmpin, HIGH, 1004000) / 1000;
     tl = 1004 - th;
     ppm_pwm = _range * (th - 2) / (th + tl - 4);
+    if (getTimeDiff(start, millis()) > 90 * 1000) { // Timeout after 90 seconds
+        _console->print("Unable to read value. Timeout.");
+        break;
+    }
   } while (th == 0);
   if (debug) {
     _console->print(F("\n # PPM PWM: "));

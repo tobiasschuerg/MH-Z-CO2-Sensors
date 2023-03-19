@@ -12,6 +12,8 @@
 #endif
 
 #include <SoftwareSerial.h>
+#include <limits.h>
+
 
 // types of sensors.
 extern const int MHZ14A;
@@ -27,6 +29,7 @@ extern const int STATUS_INCOMPLETE;
 extern const int STATUS_NOT_READY;
 
 enum Ranges {RANGE_2K = 2000, RANGE_5K = 5000};
+
 
 class MHZ {
  public:
@@ -49,6 +52,8 @@ class MHZ {
   int readCO2UART();
   int readCO2PWM();
   int getLastTemperature();
+  int getLastCO2();
+  void activateAsyncUARTReading();
 
  private:
   uint8_t _pwmpin, _type, temperature;
@@ -64,5 +69,7 @@ class MHZ {
   bool SerialConfigured = true;
   bool PwmConfigured = true;
 };
+
+unsigned long getTimeDiff(unsigned long start, unsigned long stop);
 
 #endif
