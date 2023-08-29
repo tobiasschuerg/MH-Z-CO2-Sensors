@@ -39,12 +39,14 @@ http://www.winsen-sensor.com/d/files/infrared-gas-sensor/mh-z19b-co2-ver1_0.pdf
 Datasheet (MH-Z19C):
 https://pdf1.alldatasheet.com/datasheet-pdf/view/1303687/WINSEN/MH-Z19C.html
 
-More info about the sensor:
-https://revspace.nl/MHZ19
+## More infos about the MHZ sensors an wiring:
+ - https://revspace.nl/MHZ19
+ - https://wolles-elektronikkiste.de/en/mh-z14-and-mh-z19-co2-sensors
+ - https://emariete.com/en/sensor-co2-mh-z19b/
 
 
 ## Further reading:
-- http://ihormelnyk.com/Page/mh-z19_co2_meter
+- [Building a MH-Z19 CO2 meter](http://ihormelnyk.com/Page/mh-z19_co2_meter)
 
 (russuian, but google translate does a good job)
 - https://geektimes.ru/post/285572/
