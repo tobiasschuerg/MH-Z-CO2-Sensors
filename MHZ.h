@@ -18,24 +18,21 @@
 extern const int MHZ14A;
 extern const int MHZ19B;
 extern const int MHZ19C;
-extern const int MHZ_2K;
-extern const int MHZ_5k;
-extern const int MHZ_10K;
+
 // status codes
 extern const int STATUS_NO_RESPONSE;
 extern const int STATUS_CHECKSUM_MISMATCH;
 extern const int STATUS_INCOMPLETE;
 extern const int STATUS_NOT_READY;
 
-enum Ranges { RANGE_2K = 2000, RANGE_5K = 5000 };
-
 class MHZ {
  public:
-  MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, Ranges range = RANGE_5K);
-  MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type);
-  MHZ(uint8_t pwmpin, uint8_t type, Ranges range = RANGE_5K);
-  MHZ(Stream *serial, uint8_t pwmpin, uint8_t type, Ranges range = RANGE_5K);
+  enum MeasuringRange { RANGE_2K = 2000, RANGE_5K = 5000 };
 
+  MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, MeasuringRange range = RANGE_5K);
+  MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type);
+  MHZ(uint8_t pwmpin, uint8_t type, MeasuringRange range = RANGE_5K);
+  MHZ(Stream *serial, uint8_t pwmpin, uint8_t type, MeasuringRange range = RANGE_5K);
   MHZ(Stream *serial, uint8_t type);
 
   void setDebug(boolean enable, Stream *console = &Serial);
@@ -54,8 +51,17 @@ class MHZ {
   void activateAsyncUARTReading();
 
  private:
-  uint8_t _pwmpin, _type, temperature;
-  Ranges _range = RANGE_5K;
+  static const unsigned long MHZ14A_PREHEATING_TIME = 3L * 60L * 1000L;
+  static const unsigned long MHZ19B_PREHEATING_TIME = 3L * 60L * 1000L;
+  static const unsigned long MHZ19C_PREHEATING_TIME = 1L * 60L * 1000L;
+  static const unsigned long MHZ14A_RESPONSE_TIME = (unsigned long)60 * 1000;
+  static const unsigned long MHZ19B_RESPONSE_TIME = (unsigned long)120 * 1000;
+  static const unsigned long MHZ19C_RESPONSE_TIME = (unsigned long)120 * 1000;
+  static const int UNUSED_PIN = -1;
+
+  uint8_t _pwmpin = UNUSED_PIN;
+  uint8_t _type, temperature;
+  MeasuringRange _range = RANGE_5K;
   boolean debug = false;
 
   Stream *_serial;
@@ -65,7 +71,6 @@ class MHZ {
   unsigned long lastRequest = 0;
 
   bool SerialConfigured = true;
-  bool PwmConfigured = true;
 };
 
 unsigned long getTimeDiff(unsigned long start, unsigned long stop);

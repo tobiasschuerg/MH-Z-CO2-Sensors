@@ -8,17 +8,6 @@
 const int MHZ14A = 14;
 const int MHZ19B = 119;
 const int MHZ19C = 219;
-const int MHZ_2K = 1;
-const int MHZ_5K = 2;
-const int MHZ_10K = 3;
-
-const unsigned long MHZ14A_PREHEATING_TIME = 3L * 60L * 1000L;
-const unsigned long MHZ19B_PREHEATING_TIME = 3L * 60L * 1000L;
-const unsigned long MHZ19C_PREHEATING_TIME = 1L * 60L * 1000L;
-
-const unsigned long MHZ14A_RESPONSE_TIME = (unsigned long)60 * 1000;
-const unsigned long MHZ19B_RESPONSE_TIME = (unsigned long)120 * 1000;
-const unsigned long MHZ19C_RESPONSE_TIME = (unsigned long)120 * 1000;
 
 const int STATUS_NO_RESPONSE = -2;
 const int STATUS_CHECKSUM_MISMATCH = -3;
@@ -28,7 +17,7 @@ const int STATUS_PWM_NOT_CONFIGURED = -6;
 const int STATUS_SERIAL_NOT_CONFIGURED = -7;
 
 uint8_t sPwmPin = 5;
-int sRange = 5000;
+int sRange = MHZ::RANGE_5K;
 unsigned long sHighStartsMillis, sLowStartsMillis, sTl, sTh, sLastPwmPpm = 0;
 Stream* sConsole;
 
@@ -61,7 +50,7 @@ void IRAM_ATTR pulseInInterruptHandler() {
   }
 }
 
-MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, Ranges range) {
+MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, MeasuringRange range) {
   SoftwareSerial* ss = new SoftwareSerial(rxpin, txpin);
   _pwmpin = pwmpin;
   sPwmPin = pwmpin;
@@ -79,20 +68,17 @@ MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type) {
 
   ss->begin(9600);
   _serial = ss;
-
-  PwmConfigured = false;
 }
 
-MHZ::MHZ(uint8_t pwmpin, uint8_t type, Ranges range) {
+MHZ::MHZ(uint8_t pwmpin, uint8_t type, MeasuringRange range) {
   _pwmpin = pwmpin;
   sPwmPin = pwmpin;
   sRange = range;
   _type = type;
   _range = range;
-  SerialConfigured = false;
 }
 
-MHZ::MHZ(Stream* serial, uint8_t pwmpin, uint8_t type, Ranges range) {
+MHZ::MHZ(Stream* serial, uint8_t pwmpin, uint8_t type, MeasuringRange range) {
   _serial = serial;
   _pwmpin = pwmpin;
   sPwmPin = pwmpin;
@@ -104,8 +90,6 @@ MHZ::MHZ(Stream* serial, uint8_t pwmpin, uint8_t type, Ranges range) {
 MHZ::MHZ(Stream* serial, uint8_t type) {
   _serial = serial;
   _type = type;
-
-  PwmConfigured = false;
 }
 
 void MHZ::activateAsyncUARTReading() {
@@ -157,7 +141,7 @@ boolean MHZ::isReady() {
 }
 
 int MHZ::readCO2UART() {
-  if (!SerialConfigured) {
+  if (_serial == NULL) {
     if (debug) _console->println(F("-- serial is not configured"));
     return STATUS_SERIAL_NOT_CONFIGURED;
   }
@@ -261,7 +245,7 @@ int MHZ::readCO2UART() {
 }
 
 int MHZ::getLastTemperature() {
-  if (!SerialConfigured) {
+  if (_serial == NULL) {
     if (debug) _console->println(F("-- serial is not configured"));
     return STATUS_SERIAL_NOT_CONFIGURED;
   }
@@ -272,7 +256,7 @@ int MHZ::getLastTemperature() {
 int MHZ::getLastCO2() { return sLastPwmPpm; }
 
 byte MHZ::getCheckSum(byte* packet) {
-  if (!SerialConfigured) {
+  if (_serial == NULL) {
     if (debug) _console->println(F("-- serial is not configured"));
     return STATUS_SERIAL_NOT_CONFIGURED;
   }
@@ -288,7 +272,7 @@ byte MHZ::getCheckSum(byte* packet) {
 }
 
 int MHZ::readCO2PWM() {
-  if (!PwmConfigured) {
+  if (_pwmpin == UNUSED_PIN) {
     if (debug) _console->println(F("-- pwm is not configured "));
     return STATUS_PWM_NOT_CONFIGURED;
   }
@@ -357,13 +341,13 @@ void MHZ::calibrateSpan(int range)
 
     switch(range)
     {
-        case 1:
+        case MHZ::RANGE_2K:
             _serial->write(cmd_2K,9);
             break;
-        case 2:
+        case MHZ::RANGE_5K:
             _serial->write(cmd_5K,9);
             break;
-        case 3:
+        case 10000:
              _serial->write(cmd_10k,9);
       }
 
