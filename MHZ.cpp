@@ -26,6 +26,10 @@ unsigned long getTimeDiff(unsigned long start, unsigned long stop) {
   return stop - start;
 }
 
+#ifndef IRAM_ATTR
+#define IRAM_ATTR
+#endif
+
 void IRAM_ATTR pulseInInterruptHandler() {
   unsigned long now = millis();
   int state = digitalRead(sPwmPin);
@@ -284,7 +288,7 @@ int MHZ::readCO2PWM() {
     th = pulseIn(_pwmpin, HIGH, 1004000) / 1000;
     tl = 1004 - th;
     ppm_pwm = _range * (th - 2) / (th + tl - 4);
-    if (getTimeDiff(start, millis()) > 90 * 1000) {  // Timeout after 90 seconds
+    if (getTimeDiff(start, millis()) > 90L * 1000) {  // Timeout after 90 seconds
       _console->print("Unable to read value. Timeout.");
       break;
     }
