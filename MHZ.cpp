@@ -155,6 +155,20 @@ int MHZ::readCO2UART() {
     return STATUS_SERIAL_NOT_CONFIGURED;
   }
   if (!isReady()) return STATUS_NOT_READY;
+
+  // Clearing the uart reading buffer to avoid:
+  // - processing the unwanted data the sensor sends during startup
+  // - reading an old response already in the reading buffer
+  if (debug) _console->print(F("MHZ: - clearing uart reading buffer "));
+  while (_serial->available() > 0) {
+    if (debug) {
+      _console->print(" ");
+      _console->print(_serial->peek(), HEX);
+    }
+    _serial->read();
+  }
+  if (debug) _console->println();
+
   if (debug) _console->println(F("-- read CO2 uart ---"));
   byte cmd[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
   byte response[9];  // for answer
