@@ -116,7 +116,9 @@ void MHZ::setDebug(boolean enable, Stream* console) {
 }
 
 boolean MHZ::isPreHeating() {
-  if (_type == MHZ14A) {
+  if (_isBypassPreheatingCheck) {
+    return false;
+  } else if (_type == MHZ14A) {
     return millis() < (MHZ14A_PREHEATING_TIME);
   } else if (_type == MHZ14B) {
     return millis() < (MHZ14B_PREHEATING_TIME);
@@ -133,6 +135,8 @@ boolean MHZ::isPreHeating() {
 boolean MHZ::isReady() {
   if (isPreHeating()) {
     return false;
+  } else if (_isBypassResponseTimeCheck) {
+    return true;
   } else if (_type == MHZ14A) {
     return getTimeDiff(lastRequest, millis()) > MHZ14A_RESPONSE_TIME;
   } else if (_type == MHZ14B) {
@@ -277,6 +281,11 @@ int MHZ::getLastTemperature() {
 }
 
 void MHZ::setTemperatureOffset(uint8_t offset) { _temperatureOffset = offset; }
+
+void MHZ::setBypassCheck(boolean isBypassPreheatingCheck, boolean isBypassResponseTimeCheck) {
+  _isBypassPreheatingCheck = isBypassPreheatingCheck;
+  _isBypassResponseTimeCheck = isBypassResponseTimeCheck;
+}
 
 int MHZ::getLastCO2() { return sLastPwmPpm; }
 

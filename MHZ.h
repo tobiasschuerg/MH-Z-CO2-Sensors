@@ -51,6 +51,7 @@ class MHZ {
   void setTemperatureOffset(uint8_t offset);
   int getLastCO2();
   void activateAsyncUARTReading();
+  void setBypassCheck(boolean isBypassPreheatingCheck, boolean isBypassResponseTimeCheck);
 
  private:
   static const unsigned long MHZ14A_PREHEATING_TIME = 3L * 60L * 1000L;
@@ -68,6 +69,8 @@ class MHZ {
   uint8_t _temperatureOffset = 44;
   MeasuringRange _range = RANGE_5K;
   boolean debug = false;
+  boolean _isBypassPreheatingCheck = false;
+  boolean _isBypassResponseTimeCheck = false;
 
   Stream *_serial;
   Stream *_console;
