@@ -243,7 +243,7 @@ int MHZ::readCO2UART() {
 
   int ppm_uart = 256 * (int)response[2] + response[3];
 
-  temperature = response[4] - 44;  // - 40;
+  temperature = response[4] - _temperatureOffset;
 
   byte status = response[5];
   if (debug) {
@@ -275,6 +275,8 @@ int MHZ::getLastTemperature() {
   if (isPreHeating()) return STATUS_NOT_READY;
   return temperature;
 }
+
+void MHZ::setTemperatureOffset(uint8_t offset) { _temperatureOffset = offset; }
 
 int MHZ::getLastCO2() { return sLastPwmPpm; }
 
