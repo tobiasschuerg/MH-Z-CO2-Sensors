@@ -48,6 +48,7 @@ class MHZ {
   int readCO2UART();
   int readCO2PWM();
   int getLastTemperature();
+  void setTemperatureOffset(uint8_t offset);
   int getLastCO2();
   void activateAsyncUARTReading();
 
@@ -64,6 +65,7 @@ class MHZ {
 
   uint8_t _pwmpin = UNUSED_PIN;
   uint8_t _type, temperature;
+  uint8_t _temperatureOffset = 44;
   MeasuringRange _range = RANGE_5K;
   boolean debug = false;
 
