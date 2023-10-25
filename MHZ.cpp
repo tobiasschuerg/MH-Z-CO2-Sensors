@@ -5,7 +5,8 @@
 
 #include "MHZ.h"
 
-const int MHZ14A = 14;
+const int MHZ14A = 114;
+const int MHZ14B = 214;
 const int MHZ19B = 119;
 const int MHZ19C = 219;
 
@@ -117,6 +118,8 @@ void MHZ::setDebug(boolean enable, Stream* console) {
 boolean MHZ::isPreHeating() {
   if (_type == MHZ14A) {
     return millis() < (MHZ14A_PREHEATING_TIME);
+  } else if (_type == MHZ14B) {
+    return millis() < (MHZ14B_PREHEATING_TIME);
   } else if (_type == MHZ19B) {
     return millis() < (MHZ19B_PREHEATING_TIME);
   } else if (_type == MHZ19C) {
@@ -132,6 +135,8 @@ boolean MHZ::isReady() {
     return false;
   } else if (_type == MHZ14A) {
     return getTimeDiff(lastRequest, millis()) > MHZ14A_RESPONSE_TIME;
+  } else if (_type == MHZ14B) {
+    return getTimeDiff(lastRequest, millis()) > MHZ14B_RESPONSE_TIME;
   } else if (_type == MHZ19B) {
     return getTimeDiff(lastRequest, millis()) > MHZ19B_RESPONSE_TIME;
   } else if (_type == MHZ19C) {

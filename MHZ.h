@@ -16,6 +16,7 @@
 
 // types of sensors.
 extern const int MHZ14A;
+extern const int MHZ14B;
 extern const int MHZ19B;
 extern const int MHZ19C;
 
@@ -27,7 +28,7 @@ extern const int STATUS_NOT_READY;
 
 class MHZ {
  public:
-  enum MeasuringRange { RANGE_2K = 2000, RANGE_5K = 5000 };
+  enum MeasuringRange { RANGE_2K = 2000, RANGE_5K = 5000, RANGE_10K = 10000, RANGE_50K = 50000 };
 
   MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, MeasuringRange range = RANGE_5K);
   MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type);
@@ -42,7 +43,7 @@ class MHZ {
   void setAutoCalibrate(boolean b);
   void calibrateZero();
   void setRange(int range);
-  // void calibrateSpan(int range); //only for professional use... see implementation and Dataheet.
+  // void calibrateSpan(int range); //only for professional use... see implementation and Datasheet.
 
   int readCO2UART();
   int readCO2PWM();
@@ -52,9 +53,11 @@ class MHZ {
 
  private:
   static const unsigned long MHZ14A_PREHEATING_TIME = 3L * 60L * 1000L;
+  static const unsigned long MHZ14B_PREHEATING_TIME = 1L * 30L * 1000L;
   static const unsigned long MHZ19B_PREHEATING_TIME = 3L * 60L * 1000L;
   static const unsigned long MHZ19C_PREHEATING_TIME = 1L * 60L * 1000L;
   static const unsigned long MHZ14A_RESPONSE_TIME = (unsigned long)60 * 1000;
+  static const unsigned long MHZ14B_RESPONSE_TIME = (unsigned long)0;
   static const unsigned long MHZ19B_RESPONSE_TIME = (unsigned long)120 * 1000;
   static const unsigned long MHZ19C_RESPONSE_TIME = (unsigned long)120 * 1000;
   static const int UNUSED_PIN = -1;
