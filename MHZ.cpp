@@ -5,18 +5,6 @@
 
 #include "MHZ.h"
 
-const int MHZ14A = 114;
-const int MHZ14B = 214;
-const int MHZ19B = 119;
-const int MHZ19C = 219;
-
-const int STATUS_NO_RESPONSE = -2;
-const int STATUS_CHECKSUM_MISMATCH = -3;
-const int STATUS_INCOMPLETE = -4;
-const int STATUS_NOT_READY = -5;
-const int STATUS_PWM_NOT_CONFIGURED = -6;
-const int STATUS_SERIAL_NOT_CONFIGURED = -7;
-
 uint8_t sPwmPin = 5;
 int sRange = MHZ::RANGE_5K;
 unsigned long sHighStartsMillis, sLowStartsMillis, sTl, sTh, sLastPwmPpm = 0;
@@ -55,7 +43,7 @@ void IRAM_ATTR pulseInInterruptHandler() {
   }
 }
 
-MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, MeasuringRange range) {
+MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, SensorType type, MeasuringRange range) {
   SoftwareSerial* ss = new SoftwareSerial(rxpin, txpin);
   _pwmpin = pwmpin;
   sPwmPin = pwmpin;
@@ -67,7 +55,7 @@ MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t pwmpin, uint8_t type, MeasuringRa
   _serial = ss;
 }
 
-MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type) {
+MHZ::MHZ(uint8_t rxpin, uint8_t txpin, SensorType type) {
   SoftwareSerial* ss = new SoftwareSerial(rxpin, txpin);
   _type = type;
 
@@ -75,7 +63,7 @@ MHZ::MHZ(uint8_t rxpin, uint8_t txpin, uint8_t type) {
   _serial = ss;
 }
 
-MHZ::MHZ(uint8_t pwmpin, uint8_t type, MeasuringRange range) {
+MHZ::MHZ(uint8_t pwmpin, SensorType type, MeasuringRange range) {
   _pwmpin = pwmpin;
   sPwmPin = pwmpin;
   sRange = range;
@@ -83,7 +71,7 @@ MHZ::MHZ(uint8_t pwmpin, uint8_t type, MeasuringRange range) {
   _range = range;
 }
 
-MHZ::MHZ(Stream* serial, uint8_t pwmpin, uint8_t type, MeasuringRange range) {
+MHZ::MHZ(Stream* serial, uint8_t pwmpin, SensorType type, MeasuringRange range) {
   _serial = serial;
   _pwmpin = pwmpin;
   sPwmPin = pwmpin;
@@ -92,7 +80,7 @@ MHZ::MHZ(Stream* serial, uint8_t pwmpin, uint8_t type, MeasuringRange range) {
   _range = range;
 }
 
-MHZ::MHZ(Stream* serial, uint8_t type) {
+MHZ::MHZ(Stream* serial, SensorType type) {
   _serial = serial;
   _type = type;
 }
@@ -122,10 +110,18 @@ boolean MHZ::isPreHeating() {
     return millis() < (MHZ14A_PREHEATING_TIME);
   } else if (_type == MHZ14B) {
     return millis() < (MHZ14B_PREHEATING_TIME);
+  } else if (_type == MHZ16) {
+    return millis() < (MHZ16_PREHEATING_TIME);
+  } else if (_type == MHZ1911A) {
+    return millis() < (MHZ1911A_PREHEATING_TIME);
   } else if (_type == MHZ19B) {
     return millis() < (MHZ19B_PREHEATING_TIME);
   } else if (_type == MHZ19C) {
     return millis() < (MHZ19C_PREHEATING_TIME);
+  } else if (_type == MHZ19D) {
+    return millis() < (MHZ19D_PREHEATING_TIME);
+  } else if (_type == MHZ19E) {
+    return millis() < (MHZ19E_PREHEATING_TIME);
   } else {
     _console->println(F("MHZ::isPreHeating() => UNKNOWN SENSOR"));
     return false;
@@ -141,10 +137,18 @@ boolean MHZ::isReady() {
     return getTimeDiff(lastRequest, millis()) > MHZ14A_RESPONSE_TIME;
   } else if (_type == MHZ14B) {
     return getTimeDiff(lastRequest, millis()) > MHZ14B_RESPONSE_TIME;
+  } else if (_type == MHZ16) {
+    return getTimeDiff(lastRequest, millis()) > MHZ16_RESPONSE_TIME;
+  } else if (_type == MHZ1911A) {
+    return getTimeDiff(lastRequest, millis()) > MHZ1911A_RESPONSE_TIME;
   } else if (_type == MHZ19B) {
     return getTimeDiff(lastRequest, millis()) > MHZ19B_RESPONSE_TIME;
   } else if (_type == MHZ19C) {
     return getTimeDiff(lastRequest, millis()) > MHZ19C_RESPONSE_TIME;
+  } else if (_type == MHZ19D) {
+    return getTimeDiff(lastRequest, millis()) > MHZ19D_RESPONSE_TIME;
+  } else if (_type == MHZ19E) {
+    return getTimeDiff(lastRequest, millis()) > MHZ19E_RESPONSE_TIME;
   } else {
     _console->print(F("MHZ::isReady() => UNKNOWN SENSOR \""));
     _console->print(_type);
