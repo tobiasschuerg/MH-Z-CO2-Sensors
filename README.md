@@ -21,31 +21,52 @@ The implementation primarily draws from this [Arduino forum post](https://forum.
 ## Usage
 By default, the PWM range value is set to 5000. You do not need to change anything in the class constructor if the Cppm value is within the expected range of 400-1000. However, if necessary, you can test it with a 2000 range value:
 
+### Read co2 via PWM
 ```cpp
 #include <MHZ.h>
 #define CO2_IN 9
+
+MHZ co2(CO2_IN, MHZ::MHZ19B); // here the range value is set to 5000 by default (RANGE_5K)
+int ppm_pwm = co2.readCO2PWM();
+```
+
+### Read co2 via UART
+```cpp
+#include <MHZ.h>
 #define MH_Z19_RX 10
 #define MH_Z19_TX 11
-
-MHZ co2(MH_Z19_RX, MH_Z19_TX, CO2_IN, MHZ19B); // here the range value is set to 5000 by default (RANGE_5K)
-MHZ co2(MH_Z19_RX, MH_Z19_TX, CO2_IN, MHZ19B, RANGE_2K); // here the range value is set to 2000
+MHZ co2(MH_Z19_RX, MH_Z19_TX, MHZ19B);
+pm_pwm = co2.readCO2UART();
 ```
+
+## Supported Sensors
+All `MH` sensors work mostly the same. They only differ in detection range and timings.  
+Here is a list of all explicitly supported sensors:
+
+| Sensor    | Detection Range | Reference / Datasheet                                            |
+|-----------|-----------------|------------------------------------------------------|
+| MH-Z14A   | 400~10000ppm    | https://www.winsen-sensor.com/product/mh-z14a.html   |
+| MH-Z14B   | 400~10000ppm    | https://www.winsen-sensor.com/product/mh-z19b.html   |
+| MH-Z16    | 400~10000ppm    | https://www.winsen-sensor.com/product/mh-z16.html    |
+| MH-Z1911A | 0~10000ppm      | https://www.winsen-sensor.com/product/mh-z1911a.html |
+| MH-Z19B   | 400~10000ppm    | https://www.winsen-sensor.com/product/mh-z19b.html   |
+| MH-Z19C   | 400~10000ppm    | https://www.winsen-sensor.com/product/mh-z19c.html   |
+| MH-Z19D   | 400~10000ppm    | https://www.winsen-sensor.com/product/mh-z19d.html   |
+| MH-Z19E   | 400~10000ppm    | https://www.winsen-sensor.com/product/mh-z19e.html   |
+
+Here is also a [complete overview of all CO2 sensors](https://www.winsen-sensor.com/co2-sensor/).
 
 ## Resources:
 
-Datasheet (MH-Z19B):
-http://www.winsen-sensor.com/d/files/infrared-gas-sensor/mh-z19b-co2-ver1_0.pdf
+Good overview of the different sensor types, how they work and calibrate:
+https://www.winsen-sensor.com/knowledge/what-is-co2-sensor.html
 
-Datasheet (MH-Z19C):
-https://pdf1.alldatasheet.com/datasheet-pdf/view/1303687/WINSEN/MH-Z19C.html
-
-## More infos about the MHZ sensors an wiring:
+### More infos about the MHZ sensors an wiring:
  - https://revspace.nl/MHZ19
  - https://wolles-elektronikkiste.de/en/mh-z14-and-mh-z19-co2-sensors
  - https://emariete.com/en/sensor-co2-mh-z19b/
 
-
-## Further reading:
+### Further reading:
 - [Building a MH-Z19 CO2 meter](http://ihormelnyk.com/Page/mh-z19_co2_meter)
 
 (russuian, but google translate does a good job)
