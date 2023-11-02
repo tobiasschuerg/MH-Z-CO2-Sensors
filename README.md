@@ -27,7 +27,7 @@ By default, the PWM range value is set to 5000. You do not need to change anythi
 #define CO2_IN 9
 
 MHZ co2(CO2_IN, MHZ::MHZ19B); // here the range value is set to 5000 by default (RANGE_5K)
-int ppm_pwm = co2.readCO2PWM();
+int ppm = co2.readCO2PWM();
 ```
 
 ### Read co2 via UART
@@ -36,7 +36,7 @@ int ppm_pwm = co2.readCO2PWM();
 #define MH_Z19_RX 10
 #define MH_Z19_TX 11
 MHZ co2(MH_Z19_RX, MH_Z19_TX, MHZ19B);
-pm_pwm = co2.readCO2UART();
+int ppm = co2.readCO2UART();
 ```
 
 ## Supported Sensors
