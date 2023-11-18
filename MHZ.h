@@ -44,11 +44,11 @@ class MHZ {
   void setRange(int range);
   // void calibrateSpan(int range); //only for professional use... see implementation and Datasheet.
 
-  int readCO2UART();
-  int readCO2PWM();
+  int32_t readCO2UART();
+  int32_t readCO2PWM();
   int getLastTemperature();
   void setTemperatureOffset(uint8_t offset);
-  int getLastCO2();
+  int32_t getLastCO2();
   void activateAsyncUARTReading();
   void setBypassCheck(boolean isBypassPreheatingCheck, boolean isBypassResponseTimeCheck);
 
@@ -62,14 +62,14 @@ class MHZ {
   static const unsigned long MHZ19D_PREHEATING_TIME = 1L * 60L * 1000L;
   static const unsigned long MHZ19E_PREHEATING_TIME = 1L * 60L * 1000L;
 
-  static const unsigned long MHZ14A_RESPONSE_TIME = 60 * 1000;
+  static const unsigned long MHZ14A_RESPONSE_TIME = 60L * 1000L;
   static const unsigned long MHZ14B_RESPONSE_TIME = 0;
-  static const unsigned long MHZ16_RESPONSE_TIME = 30 * 1000;
-  static const unsigned long MHZ1911A_RESPONSE_TIME = 120 * 1000;
-  static const unsigned long MHZ19B_RESPONSE_TIME = 120 * 1000;
-  static const unsigned long MHZ19C_RESPONSE_TIME = 120 * 1000;
-  static const unsigned long MHZ19D_RESPONSE_TIME = 120 * 1000;
-  static const unsigned long MHZ19E_RESPONSE_TIME = 120 * 1000;
+  static const unsigned long MHZ16_RESPONSE_TIME = 30L * 1000L;
+  static const unsigned long MHZ1911A_RESPONSE_TIME = 120L * 1000L;
+  static const unsigned long MHZ19B_RESPONSE_TIME = 120L * 1000L;
+  static const unsigned long MHZ19C_RESPONSE_TIME = 120L * 1000L;
+  static const unsigned long MHZ19D_RESPONSE_TIME = 120L * 1000L;
+  static const unsigned long MHZ19E_RESPONSE_TIME = 120L * 1000L;
 
   static const int UNUSED_PIN = -1;
 

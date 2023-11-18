@@ -40,14 +40,14 @@ int ppm = co2.readCO2UART();
 ```
 
 ## Supported Sensors
-All `MH` sensors work mostly the same. They only differ in detection range and timings.  
+All `MH` sensors work mostly the same. They only differ in detection range and timings.
 Here is a list of all explicitly supported sensors:
 
 | Sensor    | Detection Range | Reference / Datasheet                                            |
 |-----------|-----------------|------------------------------------------------------|
 | MH-Z14A   | 400~10000ppm    | https://www.winsen-sensor.com/product/mh-z14a.html   |
-| MH-Z14B   | 400~10000ppm    | https://www.winsen-sensor.com/product/mh-z19b.html   |
-| MH-Z16    | 400~10000ppm    | https://www.winsen-sensor.com/product/mh-z16.html    |
+| MH-Z14B   | 400~50000ppm    | https://www.winsen-sensor.com/product/mh-z19b.html   |
+| MH-Z16    | 400~100000ppm   | https://www.winsen-sensor.com/product/mh-z16.html    |
 | MH-Z1911A | 0~10000ppm      | https://www.winsen-sensor.com/product/mh-z1911a.html |
 | MH-Z19B   | 400~10000ppm    | https://www.winsen-sensor.com/product/mh-z19b.html   |
 | MH-Z19C   | 400~10000ppm    | https://www.winsen-sensor.com/product/mh-z19c.html   |
