@@ -157,7 +157,7 @@ boolean MHZ::isReady() {
   }
 }
 
-int MHZ::readCO2UART() {
+int32_t MHZ::readCO2UART() {
   if (_serial == NULL) {
     if (debug) _console->println(F("-- serial is not configured"));
     return STATUS_SERIAL_NOT_CONFIGURED;
@@ -249,7 +249,7 @@ int MHZ::readCO2UART() {
     return STATUS_CHECKSUM_MISMATCH;
   }
 
-  int ppm_uart = 256 * (int)response[2] + response[3];
+  int32_t ppm_uart = 256 * (int32_t)response[2] + response[3];
 
   temperature = response[4] - _temperatureOffset;
 
@@ -291,7 +291,7 @@ void MHZ::setBypassCheck(boolean isBypassPreheatingCheck, boolean isBypassRespon
   _isBypassResponseTimeCheck = isBypassResponseTimeCheck;
 }
 
-int MHZ::getLastCO2() { return sLastPwmPpm; }
+int32_t MHZ::getLastCO2() { return sLastPwmPpm; }
 
 byte MHZ::getCheckSum(byte* packet) {
   if (_serial == NULL) {
@@ -309,7 +309,7 @@ byte MHZ::getCheckSum(byte* packet) {
   return checksum;
 }
 
-int MHZ::readCO2PWM() {
+int32_t MHZ::readCO2PWM() {
   if (_pwmpin == UNUSED_PIN) {
     if (debug) _console->println(F("-- pwm is not configured "));
     return STATUS_PWM_NOT_CONFIGURED;
